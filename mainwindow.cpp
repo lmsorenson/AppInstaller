@@ -16,11 +16,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    connect(&network, &QNetworkAccessManager::finished, this, &MainWindow::on_network_connection_made);
+    connect(&network_, &QNetworkAccessManager::finished, this, &MainWindow::on_network_connection_made);
 
     QNetworkRequest request(QUrl("https://api.github.com/repos/lmsorenson/AgCabLab/releases"));
     request.setRawHeader("Authorization", "token e1d59c7b6764186b9a4adca957a7dadead2e4ccf");
-    network.get(request);
+    network_.get(request);
 }
 
 MainWindow::~MainWindow()
@@ -30,14 +30,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_network_connection_made(QNetworkReply *reply)
 {
-    // Create model
-    QStringListModel * model = new QStringListModel(this);
-
-    // Make data
-    QStringList list;
-
-    if (reply->error() == QNetworkReply::NoError) {
-
+    if (reply->error() == QNetworkReply::NoError)
+    {
         QString strReply = (QString)reply->readAll();
 
         //parse json
@@ -47,28 +41,36 @@ void MainWindow::on_network_connection_made(QNetworkReply *reply)
 
         auto array = jsonResponse.array();
 
-        qDebug() << "Array: " << response;
         for( auto itr = array.begin(); itr != array.end(); itr++)
         {
             auto item = itr->toObject();
-            list << item["name"].toString();
-            qDebug() << "Value = " << item["name"].toString();
 
             auto assets = item["assets"].toArray();
             for( auto it = assets.begin(); it != assets.end(); it++)
             {
                 auto asset = it->toObject();
-                qDebug() << " --> Asset: " << asset["name"].toString() << " link: " << asset["browser_download_url"].toString() << endl;
+                if (asset["name"] == "AgCab.zip")
+                    map_.insert(item["tag_name"].toString(), asset["browser_download_url"].toString());
             }
-
         }
-
         delete reply;
     }
     else {
         //failure
         qDebug() << "Failure" <<reply->errorString();
         delete reply;
+    }
+
+
+    // Create model
+    QStringListModel * model = new QStringListModel(this);
+
+    // Make data
+    QStringList list;
+
+    for (auto itr = map_.begin(); itr != map_.end(); itr++)
+    {
+        list << itr.key();
     }
 
     // Populate our model

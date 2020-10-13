@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QNetworkAccessManager>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,6 +22,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QNetworkAccessManager network;
+    QNetworkAccessManager network_;
+    QMap<QString, QString> map_;
+
 };
 #endif // MAINWINDOW_H
