@@ -26,6 +26,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt5 COMPONENTS Network REQUIRED)
+find_package(Qt5 COMPONENTS Concurrent REQUIRED)
+find_package(CURL REQUIRED)
 
 if(ANDROID)
   add_library(ReleaseInstaller SHARED
@@ -33,8 +35,13 @@ if(ANDROID)
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    ListItems/releaseitem.cpp
-    ListItems/releaseitem.h
+    Files/filedownload.h
+    Files/filedownload.cpp
+    Files/download.h
+    Files/download.cpp
+    progressdialog.cpp
+    progressdialog.h
+    progressdialog.ui
   )
 else()
   add_executable(ReleaseInstaller
@@ -42,9 +49,16 @@ else()
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    ListItems/releaseitem.cpp
-    ListItems/releaseitem.h
+    Files/filedownload.h
+    Files/filedownload.cpp
+    Files/download.h
+    Files/download.cpp
+    progressdialog.cpp
+    progressdialog.h
+    progressdialog.ui
   )
 endif()
 
-target_link_libraries(ReleaseInstaller PRIVATE Qt5::Widgets Qt5::Network)
+include_directories(${CURL_INCLUDE_DIR})
+
+target_link_libraries(ReleaseInstaller PRIVATE Qt5::Widgets Qt5::Network Qt5::Concurrent ${CURL_LIBRARIES})

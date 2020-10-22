@@ -1,6 +1,7 @@
 #include <QStringListModel>
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "Files/download.h"
 
 #include <QFile>
 #include <QJsonDocument>
@@ -9,6 +10,9 @@
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QDebug>
+#include <QtConcurrent>
+
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     connect(&network_, &QNetworkAccessManager::finished, this, &MainWindow::on_network_connection_made);
+
 
     QNetworkRequest request(QUrl("https://api.github.com/repos/lmsorenson/AgCabLab/releases"));
     request.setRawHeader("Authorization", "token e1d59c7b6764186b9a4adca957a7dadead2e4ccf");
@@ -32,58 +37,69 @@ void MainWindow::on_network_connection_made(QNetworkReply *reply)
 {
     if (reply->error() == QNetworkReply::NoError)
     {
-        QString strReply = (QString)reply->readAll();
+        QString reply_string = (QString)reply->readAll();
 
         //parse json
-        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(reply_string.toUtf8());
 
-        auto response = jsonResponse.isArray();
-
-        auto array = jsonResponse.array();
-
-        for( auto itr = array.begin(); itr != array.end(); itr++)
+        if (jsonResponse.isArray())
         {
-            auto item = itr->toObject();
+            auto array = jsonResponse.array();
 
-            auto assets = item["assets"].toArray();
-            for( auto it = assets.begin(); it != assets.end(); it++)
+            for( auto itr = array.begin(); itr != array.end(); itr++)
             {
-                auto asset = it->toObject();
-                if (asset["name"] == "AgCab.zip")
-                    map_.insert(item["tag_name"].toString(), asset["browser_download_url"].toString());
+                auto item = itr->toObject();
+
+                auto assets = item["assets"].toArray();
+                for( auto it = assets.begin(); it != assets.end(); it++)
+                {
+                    auto asset = it->toObject();
+                    if (asset["name"] == "AgCab.zip")
+                        map_.insert(item["tag_name"].toString(), asset["url"].toString());
+                }
             }
         }
+
         delete reply;
     }
-    else {
-        //failure
+    else
+    {
         qDebug() << "Failure" <<reply->errorString();
         delete reply;
     }
 
 
-    // Create model
     QStringListModel * model = new QStringListModel(this);
-
-    // Make data
     QStringList list;
 
     for (auto itr = map_.begin(); itr != map_.end(); itr++)
     {
         list << itr.key();
+
+        if (!future_.isRunning())
+        {
+            QString key = itr.key();
+            QString value = itr.value();
+
+            qDebug() << "Attempting to initialize download for key: " << key << "" << value;
+
+
+            download * download = new class download(nullptr);
+            progressdialog *progress_dialog = new progressdialog(nullptr);
+            QObject::connect(download, &download::make_progress, progress_dialog, &progressdialog::add_progress);
+            progress_dialog->show();
+
+            future_ = QtConcurrent::run([=](){
+                download->run( key.toStdString(), "AgCab", value.toStdString(), "e1d59c7b6764186b9a4adca957a7dadead2e4ccf");
+            });
+        }
     }
 
-    // Populate our model
-    model->setStringList(list);
+    model->setStringList( list );
 
-    // Glue model and view together
-    ui->listView->setModel(model);
+    ui->listView->setModel( model );
 
-    // Add additional feature so that
-    // we can manually modify the data in ListView
-    // It may be triggered by hitting any key or double-click etc.
-    ui->listView->
-            setEditTriggers(QAbstractItemView::AnyKeyPressed |
-                            QAbstractItemView::DoubleClicked);
+    ui->listView->setEditTriggers(QAbstractItemView::AnyKeyPressed | QAbstractItemView::DoubleClicked);
 }
+
 
