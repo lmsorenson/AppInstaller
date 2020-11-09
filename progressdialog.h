@@ -1,11 +1,13 @@
-#ifndef PROGRESSDIALOG_H
-#define PROGRESSDIALOG_H
+#pragma once
 
 #include <QDialog>
+#include <QFile>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
-namespace Ui {
-class progressdialog;
-}
+QT_BEGIN_NAMESPACE
+namespace Ui { class progressdialog; }
+QT_END_NAMESPACE
 
 class progressdialog : public QDialog
 {
@@ -24,5 +26,3 @@ signals:
 private:
     Ui::progressdialog *ui;
 };
-
-#endif // PROGRESSDIALOG_H

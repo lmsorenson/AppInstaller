@@ -35,10 +35,10 @@ if(ANDROID)
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    Files/filedownload.h
-    Files/filedownload.cpp
     Files/download.h
     Files/download.cpp
+    Files/networkaccessdownload.cpp
+    Files/networkaccessdownload.h
     progressdialog.cpp
     progressdialog.h
     progressdialog.ui
@@ -49,10 +49,10 @@ else()
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    Files/filedownload.h
-    Files/filedownload.cpp
     Files/download.h
     Files/download.cpp
+    Files/networkaccessdownload.cpp
+    Files/networkaccessdownload.h
     progressdialog.cpp
     progressdialog.h
     progressdialog.ui

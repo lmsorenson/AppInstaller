@@ -12,25 +12,10 @@
 
 #include <QtConcurrent>
 
-#if LIBCURL_VERSION_NUM >= 0x073d00
-#define TIME_IN_US 1
-#define TIMETYPE curl_off_t
-#define TIMEOPT CURLINFO_TOTAL_TIME_T
-#define MINIMAL_PROGRESS_FUNCTIONALITY_INTERVAL     3000000
-#else
-#define TIMETYPE double
-#define TIMEOPT CURLINFO_TOTAL_TIME
-#define MINIMAL_PROGRESS_FUNCTIONALITY_INTERVAL     3
-#endif
-
-#define STOP_DOWNLOAD_AFTER_THIS_MANY_BYTES         6000
 
 #include <QDebug>
 
-struct myprogress {
-  TIMETYPE lastruntime;
-  CURL *curl;
-};
+
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
@@ -39,19 +24,58 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
     return written;
 }
 
-int download::progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow)
+int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow)
 {
-    if (dltotal != 0)
-    {
-        long progress = (dlnow / dltotal);
-        qDebug() << "Now: " << dlnow << "total: " << dltotal << "Progress: " << progress;
+    struct myprogress *myp = (struct myprogress *)clientp;
+      CURL *curl = myp->curl;
+      TIMETYPE curtime = 0;
 
-    }
+      curl_easy_getinfo(curl, TIMEOPT, &curtime);
 
-    return 0;
+      /* under certain circumstances it may be desirable for certain functionality
+         to only run every N seconds, in order to do this the transaction time can
+         be used */
+      if((curtime - myp->lastruntime) >= MINIMAL_PROGRESS_FUNCTIONALITY_INTERVAL)
+      {
+        myp->lastruntime = curtime;
+
+    #ifdef TIME_IN_US
+        fprintf(stderr, "TOTAL TIME: %" CURL_FORMAT_CURL_OFF_T ".%06ld\r\n",
+                (curtime / 1000000), (long)(curtime % 1000000));
+    #else
+        fprintf(stderr, "TOTAL TIME: %f \r\n", curtime);
+    #endif
+      }
+
+      fprintf(stderr, "UP: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
+              "  DOWN: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
+              "\r\n",
+              ulnow, ultotal, dlnow, dltotal);
+
+//      if(dlnow > STOP_DOWNLOAD_AFTER_THIS_MANY_BYTES)
+//        return 1;
+      return 0;
 }
 
-download::download(QObject *parent)
+Download& Download::operator=(const Download& d)
+{
+    this->url_ = d.url_;
+    this->tag_ = d.tag_;
+    this->filename_ = d.filename_;
+    this->auth_token_ = d.auth_token_;
+    this->progress_dialog_ = d.progress_dialog_;
+
+    this->curl_ = curl_easy_init();
+
+    return *this;
+}
+
+Download::Download(QObject *parent)
+    : QObject(parent)
+{
+}
+
+Download::Download(QString tag, QString filename, QString url, QString authorization_token, QObject *parent)
     : QObject(parent)
 {
     qDebug() << "Initiating a file download...";
@@ -62,52 +86,77 @@ download::download(QObject *parent)
     if (widget != nullptr)
     {
         qDebug() << "cast succeeded";
+        progress_dialog_ = new progressdialog(widget);
+        QObject::connect(this, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
+        progress_dialog_->show();
     }
     else
     {
         qDebug() << "cast failed";
     }
 
+    tag_ = tag;
+    filename_ = filename;
+    url_ = url;
+    auth_token_ = authorization_token;
 }
 
-download::download(const download &download)
+Download::Download(const Download &download)
+: QObject(download.parent())
 {
+    auto widget = dynamic_cast<QWidget*>(download.parent());
+
+    if (widget != nullptr)
+    {
+        qDebug() << "cast succeeded";
+        progress_dialog_ = new progressdialog(widget);
+        QObject::connect(this, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
+        progress_dialog_->show();
+    }
+    else
+    {
+        qDebug() << "cast failed";
+    }
+
     curl_ = download.curl_;
+    url_ = download.url_;
+    tag_ = download.tag_;
+    filename_ = download.filename_;
+    auth_token_ = download.auth_token_;
 }
 
-int32_t download::run(std::string tag, std::string filename, std::string url, std::string authorization_token)
+QFuture<void> Download::run(struct myprogress *prog)
 {
 
     CURLcode res;
     char out_filename[FILENAME_MAX];
-    sprintf(out_filename, "/Users/Shared/AgCab/%s%s.zip", filename.c_str(), tag.c_str());
+    sprintf(out_filename, "/Users/Shared/AgCab/%s%s.zip", filename_.toStdString().c_str(), tag_.toStdString().c_str());
     qDebug() << out_filename;
-    struct myprogress prog;
+
 
     if ( curl_ != nullptr )
     {
         FILE * fp = fopen(out_filename, "wp");
 
-        prog.lastruntime = 0;
-        prog.curl = curl_;
+        prog->lastruntime = 0;
+        prog->curl = curl_;
 
         if (fp)
         {
-            qDebug() << "Sure could write the file." << url.c_str();
+            qDebug() << "Sure could write the file." << url_;
 
             struct curl_slist *list = NULL;
-
-            std::string authorization_header = std::string("Authorization: token ").append(authorization_token);
-            list = curl_slist_append(list, authorization_header.c_str());
+            QString authorization_header = QString("Authorization: token ").append(auth_token_);
+            list = curl_slist_append(list, authorization_header.toStdString().c_str());
             list = curl_slist_append(list, "Accept: application/octet-stream");
             list = curl_slist_append(list, "Connection: keep-alive");
             list = curl_slist_append(list, "Accept-Encoding: gzip, deflate, br");
 
-            curl_easy_setopt(curl_, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl_, CURLOPT_URL, url_.toStdString().c_str());
             curl_easy_setopt(curl_, CURLOPT_HTTPHEADER, list);
             curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, write_data);
-            curl_easy_setopt(curl_, CURLOPT_XFERINFOFUNCTION, &download::progress_callback);
-            curl_easy_setopt(curl_, CURLOPT_XFERINFODATA, &prog);
+            curl_easy_setopt(curl_, CURLOPT_XFERINFOFUNCTION, progress_callback);
+            curl_easy_setopt(curl_, CURLOPT_XFERINFODATA, prog);
             curl_easy_setopt(curl_, CURLOPT_NOPROGRESS, 0L);
             curl_easy_setopt(curl_, CURLOPT_WRITEDATA, fp);
             curl_easy_setopt(curl_, CURLOPT_VERBOSE, 1L);
@@ -116,9 +165,10 @@ int32_t download::run(std::string tag, std::string filename, std::string url, st
             curl_easy_setopt(curl_, CURLOPT_MAXREDIRS, 50L);
             curl_easy_setopt(curl_, CURLOPT_FOLLOWLOCATION, 1L);
 
-
             emit make_progress(60);
-            res = curl_easy_perform(curl_);
+            return QtConcurrent::run([&](){
+                res = curl_easy_perform(curl_);
+            });
         }
         else
         {
@@ -126,16 +176,16 @@ int32_t download::run(std::string tag, std::string filename, std::string url, st
         }
     }
 
-    return 0;
+    return QFuture<void>();
 }
 
-void download::on_interval()
+void Download::on_interval()
 {
     qDebug("on interval");
 }
 
 
-download::~download()
+Download::~Download()
 {
     qDebug() << "File download complete.";
     curl_easy_cleanup(curl_);

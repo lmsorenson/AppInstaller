@@ -1,7 +1,6 @@
 #include <QStringListModel>
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "Files/download.h"
 
 #include <QFile>
 #include <QJsonDocument>
@@ -35,6 +34,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_network_connection_made(QNetworkReply *reply)
 {
+    qDebug() << "net connection";
     if (reply->error() == QNetworkReply::NoError)
     {
         QString reply_string = (QString)reply->readAll();
@@ -72,6 +72,7 @@ void MainWindow::on_network_connection_made(QNetworkReply *reply)
     QStringListModel * model = new QStringListModel(this);
     QStringList list;
 
+
     for (auto itr = map_.begin(); itr != map_.end(); itr++)
     {
         list << itr.key();
@@ -81,17 +82,11 @@ void MainWindow::on_network_connection_made(QNetworkReply *reply)
             QString key = itr.key();
             QString value = itr.value();
 
-            qDebug() << "Attempting to initialize download for key: " << key << "" << value;
+            qDebug() << "creating request with url: " << value;
 
+            active_download_ = new Download(key, "AgCab", value, "e1d59c7b6764186b9a4adca957a7dadead2e4ccf", this);
 
-            download * download = new class download(nullptr);
-            progressdialog *progress_dialog = new progressdialog(nullptr);
-            QObject::connect(download, &download::make_progress, progress_dialog, &progressdialog::add_progress);
-            progress_dialog->show();
-
-            future_ = QtConcurrent::run([=](){
-                download->run( key.toStdString(), "AgCab", value.toStdString(), "e1d59c7b6764186b9a4adca957a7dadead2e4ccf");
-            });
+            future_ = active_download_->run(&progress_);
         }
     }
 

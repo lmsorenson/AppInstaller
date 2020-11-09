@@ -1,21 +1,43 @@
 #pragma once
 #include <QObject>
+#include "progressdialog.h"
 
 #include <curl/curl.h>
+#include <QFuture>
 
-typedef void CURL;
-typedef long curl_off_t;
+#if LIBCURL_VERSION_NUM >= 0x073d00
+#define TIME_IN_US 1
+#define TIMETYPE curl_off_t
+#define TIMEOPT CURLINFO_TOTAL_TIME_T
+#define MINIMAL_PROGRESS_FUNCTIONALITY_INTERVAL     3000000
+#else
+#define TIMETYPE double
+#define TIMEOPT CURLINFO_TOTAL_TIME
+#define MINIMAL_PROGRESS_FUNCTIONALITY_INTERVAL     3
+#endif
 
-class download : public QObject
+#define STOP_DOWNLOAD_AFTER_THIS_MANY_BYTES         6000
+
+
+struct myprogress {
+  TIMETYPE lastruntime;
+  CURL *curl;
+};
+
+class Download : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit download(QObject *parent = nullptr);
-    download (const download &download);
-    ~download();
+    explicit Download(QObject *parent = nullptr);
+    explicit Download(QString tag, QString filename, QString url, QString authorization_token, QObject *parent = nullptr);
+    Download (const Download &Download);
+    ~Download();
 
-    int run(std::string tag, std::string filename, std::string url, std::string authorization_token);
+
+    Download& operator=(const Download&);
+
+    QFuture<void> run(struct myprogress *prog);
 
 public slots:
     void on_interval();
@@ -24,7 +46,11 @@ signals:
     void make_progress(int progress);
 
 private:
-    int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow);
+    QString url_;
+    QString tag_;
+    QString filename_;
+    QString auth_token_;
 
     CURL *curl_;
+    progressdialog *progress_dialog_;
 };

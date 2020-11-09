@@ -1,12 +1,15 @@
 #include "progressdialog.h"
 #include "ui_progressdialog.h"
 #include <QDebug>
+#include <QFile>
+#include <QJsonDocument>
 
 progressdialog::progressdialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::progressdialog)
 {
     ui->setupUi(this);
+
 }
 
 progressdialog::progressdialog(const progressdialog &progressdialog)
@@ -24,3 +27,5 @@ progressdialog::~progressdialog()
 {
     delete ui;
 }
+
+
