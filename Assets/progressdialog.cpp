@@ -10,6 +10,8 @@ progressdialog::progressdialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    this->setWindowFlag(Qt::WindowStaysOnTopHint);
+    this->setWindowModality(Qt::WindowModality::WindowModal);
 }
 
 progressdialog::progressdialog(const progressdialog &progressdialog)
@@ -19,13 +21,20 @@ progressdialog::progressdialog(const progressdialog &progressdialog)
 
 void progressdialog::add_progress(int progress)
 {
+    ui->label->setText(this->windowTitle());
     qDebug() << "Received progress: " << progress;
     ui->progressBar->setValue(progress);
 }
 
 progressdialog::~progressdialog()
 {
+    this->setWindowModality(Qt::WindowModality::NonModal);
     delete ui;
+}
+
+void progressdialog::close_dialog()
+{
+    progressdialog::close();
 }
 
 

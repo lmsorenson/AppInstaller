@@ -49,6 +49,7 @@ Download::Download(QString tag, QString filename, QString url, QString authoriza
         qDebug() << "cast succeeded";
         progress_dialog_ = new progressdialog(widget);
         QObject::connect(this, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
+        QObject::connect(this, &Download::close_dialog, progress_dialog_, &progressdialog::close_dialog);
         progress_dialog_->setWindowTitle(filename + tag + " download");
         widget->setDisabled(true);
         progress_dialog_->show();
@@ -79,7 +80,7 @@ Download::Download(const Download &download)
         qDebug() << "cast succeeded";
         progress_dialog_ = new progressdialog(widget);
         QObject::connect(this, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
-        progress_dialog_->show();
+        progress_dialog_->exec();
     }
     else
     {
@@ -135,9 +136,10 @@ QFuture<void> Download::run()
 
             return QtConcurrent::run([&](){
                 res = curl_easy_perform(curl_);
+
                 timer_->stop();
                 emit make_progress(100);
-                progress_dialog_->hide();
+                emit close_dialog();
                 progress_dialog_->deleteLater();
                 progress_dialog_ = nullptr;
 

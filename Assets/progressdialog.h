@@ -18,8 +18,11 @@ public:
     progressdialog(const progressdialog &progressdialog);
     ~progressdialog();
 
+
+
 public slots:
     void add_progress(int progress);
+    void close_dialog();
 
 signals:
 

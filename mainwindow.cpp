@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->setWindowTitle("AgCabLab Installer");
 
     connect(ui->install, &QPushButton::released, this, &MainWindow::on_install);
     connect(&network_, &QNetworkAccessManager::finished, this, &MainWindow::on_network_connection_made);
@@ -32,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+
     delete ui;
 }
 
