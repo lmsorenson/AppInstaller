@@ -36,9 +36,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_network_connection_made(QNetworkReply *reply)
 {
-
-    QStringList list;
-
     qDebug() << "net connection";
     if (reply->error() == QNetworkReply::NoError)
     {
@@ -60,10 +57,7 @@ void MainWindow::on_network_connection_made(QNetworkReply *reply)
                 {
                     auto asset = it->toObject();
                     if (asset["name"] == "AgCab.zip")
-                    {
-                        list << item["tag_name"].toString();
                         map_.insert(item["tag_name"].toString(), asset["url"].toString());
-                    }
                 }
             }
         }
@@ -78,6 +72,12 @@ void MainWindow::on_network_connection_made(QNetworkReply *reply)
 
 
     QStringListModel * model = new QStringListModel(this);
+    QStringList list;
+    for (auto itr = map_.begin(); itr != map_.end(); itr++)
+    {
+        list << itr.key();
+    }
+
     model->setStringList( list );
     ui->listView->setModel( model );
     ui->listView->setEditTriggers(QAbstractItemView::AnyKeyPressed | QAbstractItemView::DoubleClicked);
@@ -90,10 +90,6 @@ void MainWindow::on_install()
         auto selectedIndex = ui->listView->currentIndex();
 
         auto model = dynamic_cast<QStringListModel*>(ui->listView->model());
-
-        if (!model)
-            return;
-
         auto data = model->itemData(selectedIndex);
         auto tag = data.first().value<QString>();
         auto url = map_[tag];
