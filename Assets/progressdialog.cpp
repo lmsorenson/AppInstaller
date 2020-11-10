@@ -1,7 +1,5 @@
 #include "progressdialog.h"
 #include "ui_progressdialog.h"
-#include <QDebug>
-#include <QFile>
 #include <QJsonDocument>
 
 progressdialog::progressdialog(QWidget *parent) :
@@ -9,9 +7,11 @@ progressdialog::progressdialog(QWidget *parent) :
     ui(new Ui::progressdialog)
 {
     ui->setupUi(this);
+    ui->progressBar->setValue(0);
 
     this->setWindowFlag(Qt::WindowStaysOnTopHint);
     this->setWindowModality(Qt::WindowModality::WindowModal);
+
 }
 
 progressdialog::progressdialog(const progressdialog &progressdialog)

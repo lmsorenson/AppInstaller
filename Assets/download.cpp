@@ -18,19 +18,6 @@
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
 int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow);
 
-Download& Download::operator=(const Download& d)
-{
-    this->url_ = d.url_;
-    this->tag_ = d.tag_;
-    this->filename_ = d.filename_;
-    this->auth_token_ = d.auth_token_;
-    this->progress_dialog_ = d.progress_dialog_;
-
-    this->curl_ = curl_easy_init();
-
-    return *this;
-}
-
 Download::Download(QObject *parent)
     : QObject(parent)
 {
@@ -70,36 +57,12 @@ Download::Download(QString tag, QString filename, QString url, QString authoriza
     auth_token_ = authorization_token;
 }
 
-Download::Download(const Download &download)
-: QObject(download.parent())
-{
-    auto widget = dynamic_cast<QWidget*>(download.parent());
-
-    if (widget != nullptr)
-    {
-        qDebug() << "cast succeeded";
-        progress_dialog_ = new progressdialog(widget);
-        QObject::connect(this, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
-        progress_dialog_->exec();
-    }
-    else
-    {
-        qDebug() << "cast failed";
-    }
-
-    curl_ = download.curl_;
-    url_ = download.url_;
-    tag_ = download.tag_;
-    filename_ = download.filename_;
-    auth_token_ = download.auth_token_;
-}
 
 QFuture<void> Download::run()
 {
     CURLcode res;
     char out_filename[FILENAME_MAX];
     sprintf(out_filename, "/Users/Shared/AgCab/%s%s.zip", filename_.toStdString().c_str(), tag_.toStdString().c_str());
-    qDebug() << out_filename;
 
     if ( curl_ != nullptr )
     {

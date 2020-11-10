@@ -20,7 +20,7 @@ public:
 
 private slots:
     void on_network_connection_made(QNetworkReply *reply);
-
+    void on_selection_changed(const QItemSelection& selection);
     void on_install();
 
 private:

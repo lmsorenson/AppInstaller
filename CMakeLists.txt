@@ -27,7 +27,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt5 COMPONENTS Network REQUIRED)
 find_package(Qt5 COMPONENTS Concurrent REQUIRED)
+
+find_package(libzip REQUIRED)
+message("libzip ${libzip_VERSION}")
+
 find_package(CURL REQUIRED)
+message("curl")
 
 if(ANDROID)
   add_library(ReleaseInstaller SHARED
@@ -40,6 +45,8 @@ if(ANDROID)
     Assets/progressdialog.cpp
     Assets/progressdialog.h
     Assets/progressdialog.ui
+    Zip/zippackage.cpp
+    Zip/zippackage.h
   )
 else()
   add_executable(ReleaseInstaller
@@ -52,9 +59,12 @@ else()
     Assets/progressdialog.cpp
     Assets/progressdialog.h
     Assets/progressdialog.ui
+    Zip/zippackage.cpp
+    Zip/zippackage.h
   )
 endif()
 
 include_directories(${CURL_INCLUDE_DIR})
+include_directories("/usr/local/include/")
 
-target_link_libraries(ReleaseInstaller PRIVATE Qt5::Widgets Qt5::Network Qt5::Concurrent ${CURL_LIBRARIES})
+target_link_libraries(ReleaseInstaller PRIVATE Qt5::Widgets Qt5::Network Qt5::Concurrent ${CURL_LIBRARIES} ${libzip_LIBRARIES})
