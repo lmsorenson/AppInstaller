@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QtConcurrent>
 
+#include <Assets/download.h>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -96,7 +97,7 @@ void MainWindow::on_install()
 
         active_download_ = new Download(tag, "AgCab", url, "e1d59c7b6764186b9a4adca957a7dadead2e4ccf", this);
 
-        future_ = active_download_->run(&progress_);
+        future_ = active_download_->run();
     }
 }
 

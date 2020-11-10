@@ -37,7 +37,7 @@ public:
 
     Download& operator=(const Download&);
 
-    QFuture<void> run(struct myprogress *prog);
+    QFuture<void> run();
 
 public slots:
     void on_interval();
@@ -53,4 +53,5 @@ private:
 
     CURL *curl_;
     progressdialog *progress_dialog_;
+    myprogress progress_;
 };

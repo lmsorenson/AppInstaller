@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 project(ReleaseInstaller LANGUAGES CXX)
 
@@ -35,13 +35,11 @@ if(ANDROID)
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    Files/download.h
-    Files/download.cpp
-    Files/networkaccessdownload.cpp
-    Files/networkaccessdownload.h
-    progressdialog.cpp
-    progressdialog.h
-    progressdialog.ui
+    Assets/download.h
+    Assets/download.cpp
+    Assets/progressdialog.cpp
+    Assets/progressdialog.h
+    Assets/progressdialog.ui
   )
 else()
   add_executable(ReleaseInstaller
@@ -49,13 +47,11 @@ else()
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    Files/download.h
-    Files/download.cpp
-    Files/networkaccessdownload.cpp
-    Files/networkaccessdownload.h
-    progressdialog.cpp
-    progressdialog.h
-    progressdialog.ui
+    Assets/download.h
+    Assets/download.cpp
+    Assets/progressdialog.cpp
+    Assets/progressdialog.h
+    Assets/progressdialog.ui
   )
 endif()
 

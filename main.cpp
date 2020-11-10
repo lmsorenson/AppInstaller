@@ -1,6 +1,4 @@
 #include "mainwindow.h"
-#include "Files/download.h"
-
 #include <QApplication>
 
 int main(int argc, char *argv[])

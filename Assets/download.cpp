@@ -1,6 +1,3 @@
-#include "download.h"
-#include "../progressdialog.h"
-
 #include <QWidget>
 
 #define CURL_STATICLIB
@@ -11,51 +8,17 @@
 #include <fstream>
 
 #include <QtConcurrent>
-
-
 #include <QDebug>
 
+#include "Assets/download.h"
+#include "Assets/progressdialog.h"
 
 
-size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
-{
-    size_t written;
-    written = fwrite(ptr, size, nmemb, stream);
-    return written;
-}
 
-int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow)
-{
-    struct myprogress *myp = (struct myprogress *)clientp;
-      CURL *curl = myp->curl;
-      TIMETYPE curtime = 0;
 
-      curl_easy_getinfo(curl, TIMEOPT, &curtime);
 
-      /* under certain circumstances it may be desirable for certain functionality
-         to only run every N seconds, in order to do this the transaction time can
-         be used */
-      if((curtime - myp->lastruntime) >= MINIMAL_PROGRESS_FUNCTIONALITY_INTERVAL)
-      {
-        myp->lastruntime = curtime;
-
-    #ifdef TIME_IN_US
-        fprintf(stderr, "TOTAL TIME: %" CURL_FORMAT_CURL_OFF_T ".%06ld\r\n",
-                (curtime / 1000000), (long)(curtime % 1000000));
-    #else
-        fprintf(stderr, "TOTAL TIME: %f \r\n", curtime);
-    #endif
-      }
-
-      fprintf(stderr, "UP: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
-              "  DOWN: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
-              "\r\n",
-              ulnow, ultotal, dlnow, dltotal);
-
-//      if(dlnow > STOP_DOWNLOAD_AFTER_THIS_MANY_BYTES)
-//        return 1;
-      return 0;
-}
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
+int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow);
 
 Download& Download::operator=(const Download& d)
 {
@@ -127,7 +90,7 @@ Download::Download(const Download &download)
     auth_token_ = download.auth_token_;
 }
 
-QFuture<void> Download::run(struct myprogress *prog)
+QFuture<void> Download::run()
 {
 
     CURLcode res;
@@ -140,8 +103,8 @@ QFuture<void> Download::run(struct myprogress *prog)
     {
         FILE * fp = fopen(out_filename, "wp");
 
-        prog->lastruntime = 0;
-        prog->curl = curl_;
+        progress_.lastruntime = 0;
+        progress_.curl = curl_;
 
         if (fp)
         {
@@ -158,7 +121,7 @@ QFuture<void> Download::run(struct myprogress *prog)
             curl_easy_setopt(curl_, CURLOPT_HTTPHEADER, list);
             curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, write_data);
             curl_easy_setopt(curl_, CURLOPT_XFERINFOFUNCTION, progress_callback);
-            curl_easy_setopt(curl_, CURLOPT_XFERINFODATA, prog);
+            curl_easy_setopt(curl_, CURLOPT_XFERINFODATA, &progress_);
             curl_easy_setopt(curl_, CURLOPT_NOPROGRESS, 0L);
             curl_easy_setopt(curl_, CURLOPT_WRITEDATA, fp);
             curl_easy_setopt(curl_, CURLOPT_VERBOSE, 1L);
@@ -194,3 +157,37 @@ Download::~Download()
 }
 
 
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
+{
+    size_t written;
+    written = fwrite(ptr, size, nmemb, stream);
+    return written;
+}
+
+int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow)
+{
+    struct myprogress *myp = (struct myprogress *)clientp;
+      CURL *curl = myp->curl;
+      TIMETYPE curtime = 0;
+
+      curl_easy_getinfo(curl, TIMEOPT, &curtime);
+
+      if((curtime - myp->lastruntime) >= MINIMAL_PROGRESS_FUNCTIONALITY_INTERVAL)
+      {
+        myp->lastruntime = curtime;
+
+    #ifdef TIME_IN_US
+        fprintf(stderr, "TOTAL TIME: %" CURL_FORMAT_CURL_OFF_T ".%06ld\r\n",
+                (curtime / 1000000), (long)(curtime % 1000000));
+    #else
+        fprintf(stderr, "TOTAL TIME: %f \r\n", curtime);
+    #endif
+      }
+
+      fprintf(stderr, "UP: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
+              "  DOWN: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
+              "\r\n",
+              ulnow, ultotal, dlnow, dltotal);
+
+      return 0;
+}

@@ -1,12 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "progressdialog.h"
 #include <QMainWindow>
 #include <QNetworkAccessManager>
 #include <QMap>
 #include <QtConcurrent>
-#include <Files/download.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,9 +27,7 @@ private:
     Ui::MainWindow *ui;
     QNetworkAccessManager network_;
     QMap<QString, QString> map_;
-    Download * active_download_;
+    class Download * active_download_;
     QFuture<void> future_;
-    myprogress progress_;
-
 };
 #endif // MAINWINDOW_H
