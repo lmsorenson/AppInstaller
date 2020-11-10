@@ -2,10 +2,8 @@
 
 #define CURL_STATICLIB
 #include <curl/curl.h>
-#include <sstream>
 #include <curl/easy.h>
-#include <iostream>
-#include <fstream>
+#include <memory>
 
 #include <QtConcurrent>
 #include <QDebug>
@@ -51,14 +49,19 @@ Download::Download(QString tag, QString filename, QString url, QString authoriza
         qDebug() << "cast succeeded";
         progress_dialog_ = new progressdialog(widget);
         QObject::connect(this, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
+        progress_dialog_->setWindowTitle(filename + tag + " download");
+        widget->setDisabled(true);
         progress_dialog_->show();
+        progress_dialog_->setDisabled(false);
     }
     else
     {
         qDebug() << "cast failed";
     }
 
-    QTimer timer;
+    timer_ = std::make_shared<QTimer>(this);
+    connect(timer_.get(), &QTimer::timeout, this, &Download::on_interval);
+    timer_->start(5);
 
     tag_ = tag;
     filename_ = filename;
@@ -92,12 +95,10 @@ Download::Download(const Download &download)
 
 QFuture<void> Download::run()
 {
-
     CURLcode res;
     char out_filename[FILENAME_MAX];
     sprintf(out_filename, "/Users/Shared/AgCab/%s%s.zip", filename_.toStdString().c_str(), tag_.toStdString().c_str());
     qDebug() << out_filename;
-
 
     if ( curl_ != nullptr )
     {
@@ -105,6 +106,8 @@ QFuture<void> Download::run()
 
         progress_.lastruntime = 0;
         progress_.curl = curl_;
+        progress_.now = 0;
+        progress_.total = 0;
 
         if (fp)
         {
@@ -130,7 +133,6 @@ QFuture<void> Download::run()
             curl_easy_setopt(curl_, CURLOPT_MAXREDIRS, 50L);
             curl_easy_setopt(curl_, CURLOPT_FOLLOWLOCATION, 1L);
 
-            emit make_progress(60);
             return QtConcurrent::run([&](){
                 res = curl_easy_perform(curl_);
             });
@@ -146,7 +148,10 @@ QFuture<void> Download::run()
 
 void Download::on_interval()
 {
-    qDebug("on interval");
+    double percentage = progress_.now / progress_.total;
+    qDebug() << "percent: " << percentage;
+
+    emit make_progress(percentage * 100);
 }
 
 
@@ -184,10 +189,12 @@ int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,  
     #endif
       }
 
-      fprintf(stderr, "UP: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
-              "  DOWN: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
-              "\r\n",
-              ulnow, ultotal, dlnow, dltotal);
+      myp->now = dlnow;
+      myp->total = dltotal;
+//      fprintf(stderr, "UP: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
+//              "  DOWN: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
+//              "\r\n",
+//              ulnow, ultotal, dlnow, dltotal);
 
       return 0;
 }

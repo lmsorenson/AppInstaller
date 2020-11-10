@@ -22,6 +22,8 @@
 struct myprogress {
   TIMETYPE lastruntime;
   CURL *curl;
+  double now;
+  double total;
 };
 
 class Download : public QObject
@@ -54,4 +56,6 @@ private:
     CURL *curl_;
     progressdialog *progress_dialog_;
     myprogress progress_;
+
+    std::shared_ptr<QTimer> timer_;
 };
