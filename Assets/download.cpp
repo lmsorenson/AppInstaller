@@ -135,6 +135,18 @@ QFuture<void> Download::run()
 
             return QtConcurrent::run([&](){
                 res = curl_easy_perform(curl_);
+                timer_->stop();
+                emit make_progress(100);
+                progress_dialog_->hide();
+                progress_dialog_->deleteLater();
+                progress_dialog_ = nullptr;
+
+                auto widget = dynamic_cast<QWidget*>(parent());
+
+                if (widget != nullptr)
+                {
+                    widget->setDisabled(false);
+                }
             });
         }
         else
@@ -150,7 +162,6 @@ void Download::on_interval()
 {
     double percentage = progress_.now / progress_.total;
     qDebug() << "percent: " << percentage;
-
     emit make_progress(percentage * 100);
 }
 
@@ -179,14 +190,7 @@ int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,  
 
       if((curtime - myp->lastruntime) >= MINIMAL_PROGRESS_FUNCTIONALITY_INTERVAL)
       {
-        myp->lastruntime = curtime;
-
-    #ifdef TIME_IN_US
-        fprintf(stderr, "TOTAL TIME: %" CURL_FORMAT_CURL_OFF_T ".%06ld\r\n",
-                (curtime / 1000000), (long)(curtime % 1000000));
-    #else
-        fprintf(stderr, "TOTAL TIME: %f \r\n", curtime);
-    #endif
+            myp->lastruntime = curtime;
       }
 
       myp->now = dlnow;
