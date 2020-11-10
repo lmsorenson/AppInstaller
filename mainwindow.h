@@ -23,6 +23,8 @@ public:
 private slots:
     void on_network_connection_made(QNetworkReply *reply);
 
+    void on_install();
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager network_;

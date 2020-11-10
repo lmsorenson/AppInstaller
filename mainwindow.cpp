@@ -19,8 +19,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    connect(ui->install, &QPushButton::released, this, &MainWindow::on_install);
     connect(&network_, &QNetworkAccessManager::finished, this, &MainWindow::on_network_connection_made);
 
+    ui->listView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
 
     QNetworkRequest request(QUrl("https://api.github.com/repos/lmsorenson/AgCabLab/releases"));
     request.setRawHeader("Authorization", "token e1d59c7b6764186b9a4adca957a7dadead2e4ccf");
@@ -34,6 +36,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_network_connection_made(QNetworkReply *reply)
 {
+
+    QStringList list;
+
     qDebug() << "net connection";
     if (reply->error() == QNetworkReply::NoError)
     {
@@ -55,7 +60,10 @@ void MainWindow::on_network_connection_made(QNetworkReply *reply)
                 {
                     auto asset = it->toObject();
                     if (asset["name"] == "AgCab.zip")
+                    {
+                        list << item["tag_name"].toString();
                         map_.insert(item["tag_name"].toString(), asset["url"].toString());
+                    }
                 }
             }
         }
@@ -70,31 +78,30 @@ void MainWindow::on_network_connection_made(QNetworkReply *reply)
 
 
     QStringListModel * model = new QStringListModel(this);
-    QStringList list;
-
-
-    for (auto itr = map_.begin(); itr != map_.end(); itr++)
-    {
-        list << itr.key();
-
-        if (!future_.isRunning())
-        {
-            QString key = itr.key();
-            QString value = itr.value();
-
-            qDebug() << "creating request with url: " << value;
-
-            active_download_ = new Download(key, "AgCab", value, "e1d59c7b6764186b9a4adca957a7dadead2e4ccf", this);
-
-            future_ = active_download_->run(&progress_);
-        }
-    }
-
     model->setStringList( list );
-
     ui->listView->setModel( model );
-
     ui->listView->setEditTriggers(QAbstractItemView::AnyKeyPressed | QAbstractItemView::DoubleClicked);
+}
+
+void MainWindow::on_install()
+{
+    if (!future_.isRunning())
+    {
+        auto selectedIndex = ui->listView->currentIndex();
+
+        auto model = dynamic_cast<QStringListModel*>(ui->listView->model());
+
+        if (!model)
+            return;
+
+        auto data = model->itemData(selectedIndex);
+        auto tag = data.first().value<QString>();
+        auto url = map_[tag];
+
+        active_download_ = new Download(tag, "AgCab", url, "e1d59c7b6764186b9a4adca957a7dadead2e4ccf", this);
+
+        future_ = active_download_->run(&progress_);
+    }
 }
 
 

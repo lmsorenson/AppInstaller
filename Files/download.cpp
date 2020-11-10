@@ -95,6 +95,8 @@ Download::Download(QString tag, QString filename, QString url, QString authoriza
         qDebug() << "cast failed";
     }
 
+    QTimer timer;
+
     tag_ = tag;
     filename_ = filename;
     url_ = url;
