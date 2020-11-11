@@ -3,9 +3,11 @@
 #include <archive_entry.h>
 #include <QDebug>
 
-ZipPackage::ZipPackage(QString path) : QObject(nullptr)
+ZipPackage::ZipPackage(QString path, QString file_name, QString extension) : QObject(nullptr)
 {
     path_ = path;
+    file_name_ = file_name;
+    extension_ = extension;
 }
 
 QStringList ZipPackage::list()
@@ -20,6 +22,8 @@ QStringList ZipPackage::list()
     a = archive_read_new();
     archive_read_support_filter_all(a);
     archive_read_support_format_all(a);
+
+
     r = archive_read_open_filename(a, path_.toStdString().c_str(), 10240);
 
     if (r != ARCHIVE_OK)
@@ -81,8 +85,12 @@ void ZipPackage::extract()
     archive_write_disk_set_options(ext, flags);
     archive_write_disk_set_standard_lookup(ext);
 
-    if ((r = archive_read_open_filename(a, path_.toStdString().c_str(), 10240)))
+    QString read_path = path_ + "/" + file_name_ + extension_;
+    QString write_directory = path_ + "/" + file_name_ + "/";
+
+    if ((r = archive_read_open_filename(a, read_path.toStdString().c_str(), 10240)))
         exit(1);
+
     for (;;) {
         r = archive_read_next_header(a, &entry);
         if (r == ARCHIVE_EOF)
@@ -92,9 +100,8 @@ void ZipPackage::extract()
         if (r < ARCHIVE_WARN)
             exit(1);
 
-        auto new_path = std::string("/Users/Shared/AgCab/Directory/").append(archive_entry_pathname(entry));
-        archive_entry_set_pathname(entry, new_path.c_str());
-        qDebug() << QString(new_path.c_str());
+        auto new_path = (write_directory + archive_entry_pathname(entry));
+        archive_entry_set_pathname(entry, new_path.toStdString().c_str());
 
         r = archive_write_header(ext, entry);
         if (r < ARCHIVE_OK)
@@ -111,7 +118,12 @@ void ZipPackage::extract()
             fprintf(stderr, "%s\n", archive_error_string(ext));
         if (r < ARCHIVE_WARN)
             exit(1);
+
+        if (new_path.contains("/Contents/MacOS/", Qt::CaseSensitivity::CaseSensitive) && !new_path.endsWith("/"))
+            chmod(new_path.toStdString().c_str(), S_IRUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
     }
+
+
     archive_read_close(a);
     archive_read_free(a);
     archive_write_close(ext);

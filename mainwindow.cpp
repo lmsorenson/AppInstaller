@@ -121,11 +121,11 @@ void MainWindow::on_new_zip()
     auto data = model->itemData(selectedIndex);
     auto tag = data.first().value<QString>();
 
-    QString filename = "AgCab" + tag + ".zip";
+    QString filename = "AgCab" + tag;
 
     qDebug() << "new zip available: " << filename;
 
-    auto package = new ZipPackage("/Users/Shared/AgCab/" + filename);
+    auto package = new ZipPackage("/Users/Shared/AgCab", filename, ".zip");
     package->extract();
 }
 

@@ -6,7 +6,7 @@ class ZipPackage : public QObject
 {
     Q_OBJECT
 public:
-    explicit ZipPackage(QString path);
+    explicit ZipPackage(QString path, QString file_name, QString extension);
     QStringList list();
     void extract();
 
