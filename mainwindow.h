@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QNetworkAccessManager>
@@ -22,6 +21,7 @@ private slots:
     void on_network_connection_made(QNetworkReply *reply);
     void on_selection_changed(const QItemSelection& selection);
     void on_install();
+    void on_new_zip();
 
 private:
     Ui::MainWindow *ui;
@@ -29,5 +29,5 @@ private:
     QMap<QString, QString> map_;
     class Download * active_download_;
     QFuture<void> future_;
+    QFutureWatcher<void> watcher_;
 };
-#endif // MAINWINDOW_H

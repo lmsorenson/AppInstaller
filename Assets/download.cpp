@@ -160,10 +160,10 @@ int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,  
 
       myp->now = dlnow;
       myp->total = dltotal;
-//      fprintf(stderr, "UP: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
-//              "  DOWN: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
-//              "\r\n",
-//              ulnow, ultotal, dlnow, dltotal);
+    //      fprintf(stderr, "UP: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
+    //              "  DOWN: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
+    //              "\r\n",
+    //              ulnow, ultotal, dlnow, dltotal);
 
       return 0;
 }

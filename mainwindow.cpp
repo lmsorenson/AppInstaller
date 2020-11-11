@@ -12,6 +12,7 @@
 #include <QtConcurrent>
 
 #include <Assets/download.h>
+#include <Zip/zippackage.h>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->listView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
     ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-
+    connect(&watcher_, &QFutureWatcher<void>::finished, this, &MainWindow::on_new_zip);
     connect(ui->install, &QPushButton::released, this, &MainWindow::on_install);
     connect(&network_, &QNetworkAccessManager::finished, this, &MainWindow::on_network_connection_made);
 
@@ -105,7 +106,27 @@ void MainWindow::on_install()
         active_download_ = new Download(tag, "AgCab", url, "e1d59c7b6764186b9a4adca957a7dadead2e4ccf", this);
 
         future_ = active_download_->run();
+
+        if (!future_.isFinished())
+            watcher_.setFuture(future_);
+
     }
+}
+
+void MainWindow::on_new_zip()
+{
+    auto selectedIndex = ui->listView->currentIndex();
+
+    auto model = dynamic_cast<QStringListModel*>(ui->listView->model());
+    auto data = model->itemData(selectedIndex);
+    auto tag = data.first().value<QString>();
+
+    QString filename = "AgCab" + tag + ".zip";
+
+    qDebug() << "new zip available: " << filename;
+
+    auto package = new ZipPackage("/Users/Shared/AgCab/" + filename);
+    package->extract();
 }
 
 

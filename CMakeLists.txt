@@ -27,12 +27,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt5 COMPONENTS Network REQUIRED)
 find_package(Qt5 COMPONENTS Concurrent REQUIRED)
-
-find_package(libzip REQUIRED)
-message("libzip ${libzip_VERSION}")
-
+find_package(LibArchive REQUIRED)
 find_package(CURL REQUIRED)
-message("curl")
 
 if(ANDROID)
   add_library(ReleaseInstaller SHARED
@@ -65,6 +61,6 @@ else()
 endif()
 
 include_directories(${CURL_INCLUDE_DIR})
-include_directories("/usr/local/include/")
+include_directories(${LibArchive_INCLUDE_DIR})
 
-target_link_libraries(ReleaseInstaller PRIVATE Qt5::Widgets Qt5::Network Qt5::Concurrent ${CURL_LIBRARIES} ${libzip_LIBRARIES})
+target_link_libraries(ReleaseInstaller PRIVATE Qt5::Widgets Qt5::Network Qt5::Concurrent ${CURL_LIBRARIES} ${LibArchive_LIBRARIES})
