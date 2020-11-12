@@ -23,7 +23,7 @@ Download::Download(QString directory, QString filename, QString tag, QString url
     , curl_(curl_easy_init())
     , url_(url)
     , auth_token_(authorization_token)
-    , directory_(directory)
+    , directory_(directory + ((directory.endsWith("/")) ? "" : "/"))
     , filename_(filename + tag)
     , extension_(".zip")
     , progress_dialog_(new progressdialog(parent))
@@ -155,10 +155,6 @@ int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,  
 
       myp->now = dlnow;
       myp->total = dltotal;
-    //      fprintf(stderr, "UP: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
-    //              "  DOWN: %" CURL_FORMAT_CURL_OFF_T " of %" CURL_FORMAT_CURL_OFF_T
-    //              "\r\n",
-    //              ulnow, ultotal, dlnow, dltotal);
 
       return 0;
 }

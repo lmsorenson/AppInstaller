@@ -3,13 +3,21 @@
 #include <QFutureWatcher>
 #include <Assets/assetmanagerbase.h>
 
+struct GitHubProject
+{
+    QString user_name;
+    QString project_name;
+    QString asset_name;
+    QString access_token;
+};
+
 class GitHubAssetManager : public AssetManagerBase
 {
     Q_OBJECT
 public:
-    explicit GitHubAssetManager(QWidget *parent);
+    explicit GitHubAssetManager(QString install_directory, GitHubProject project, QWidget *parent);
 
-    virtual QFuture<QStringList> request_asset_ids() override;
+    virtual void request_asset_ids() override;
     virtual QFuture<QString> download_asset(QString asset_id, QString url) override;
     virtual QFuture<void> unzip_asset(QString file_name) override;
 

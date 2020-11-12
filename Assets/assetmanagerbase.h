@@ -11,7 +11,7 @@ class AssetManagerBase : public QObject
 public:
     explicit AssetManagerBase(QObject *parent);
 
-    virtual QFuture<QStringList> request_asset_ids() = 0;
+    virtual void request_asset_ids() = 0;
     virtual QFuture<QString> download_asset(QString asset_id, QString url) = 0;
     virtual QFuture<void> unzip_asset(QString file_name) = 0;
 

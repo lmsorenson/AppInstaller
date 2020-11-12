@@ -10,28 +10,22 @@
 #include <Assets/download.h>
 #include <Archives/zippackage.h>
 
-GitHubAssetManager::GitHubAssetManager(QWidget *parent)
+GitHubAssetManager::GitHubAssetManager(QString install_directory, GitHubProject project, QWidget *parent)
 : AssetManagerBase(parent)
-, github_username_("lmsorenson")
-, github_project_("AgCabLab")
-, github_asset_name_("AgCab")
-, github_token_("e1d59c7b6764186b9a4adca957a7dadead2e4ccf")
-, install_directory_("/Users/Shared/AgCab")
+, github_username_(project.user_name)
+, github_project_(project.project_name)
+, github_asset_name_(project.asset_name)
+, github_token_(project.access_token)
+, install_directory_(install_directory)
 {
+    QObject::connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received);
 }
 
-QFuture<QStringList> GitHubAssetManager::request_asset_ids()
+void GitHubAssetManager::request_asset_ids()
 {
-
     QNetworkRequest request(QUrl("https://api.github.com/repos/" + github_username_ + "/" + github_project_ + "/releases"));
     request.setRawHeader("Authorization", QString("token " + github_token_).toStdString().c_str());
     network_.get(request);
-
-    QEventLoop loop;
-    QObject::connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received);
-
-
-    return QFuture<QStringList>();
 }
 
 void GitHubAssetManager::on_assets_received(QNetworkReply *reply)
