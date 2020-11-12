@@ -9,7 +9,7 @@ class ZipPackage : public QObject
 public:
     explicit ZipPackage(QString path, QString file_name, QString extension);
     QStringList list();
-    QFuture<void> extract();
+    QFuture<QString> extract();
 
 signals:
 

@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QDebug>
 #include <QTimer>
+#include <QFile>
 
 #include <Assets/download.h>
 #include <Archives/zippackage.h>
@@ -76,7 +77,7 @@ QFuture<QString> GitHubAssetManager::download_asset(QString asset_id, QString ur
     return active_download_->run();
 }
 
-QFuture<void> GitHubAssetManager::unzip_asset(QString file_name)
+QFuture<QString> GitHubAssetManager::unzip_asset(QString file_name)
 {
     active_archive_ = new ZipPackage(install_directory_, file_name, ".zip");
 

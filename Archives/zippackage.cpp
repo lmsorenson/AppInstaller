@@ -8,7 +8,7 @@
 ZipPackage::ZipPackage(QString path, QString file_name, QString extension) : QObject(nullptr)
 {
     qDebug() << "Zip package constructed for path: " << path << " file name: " << file_name << extension;
-    path_ = path;
+    path_ = path + ((path.endsWith("/")) ? "" : "/");
     file_name_ = file_name;
     extension_ = extension;
 }
@@ -66,7 +66,7 @@ static int copy_data(struct archive *ar, struct archive *aw)
     }
 }
 
-QFuture<void> ZipPackage::extract()
+QFuture<QString> ZipPackage::extract()
 {
     return QtConcurrent::run([&](){
         struct archive *a;
@@ -89,7 +89,7 @@ QFuture<void> ZipPackage::extract()
         archive_write_disk_set_options(ext, flags);
         archive_write_disk_set_standard_lookup(ext);
 
-        QString read_path = path_ + "/" + file_name_ + extension_;
+        QString read_path = path_ + file_name_ + extension_;
         QString write_directory = path_ + "/" + file_name_ + "/";
 
         if ((r = archive_read_open_filename(a, read_path.toStdString().c_str(), 10240)))
@@ -131,7 +131,7 @@ QFuture<void> ZipPackage::extract()
         archive_read_free(a);
         archive_write_close(ext);
         archive_write_free(ext);
-        return;
-    });
 
+        return read_path;
+    });
 }

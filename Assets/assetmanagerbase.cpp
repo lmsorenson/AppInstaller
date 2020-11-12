@@ -1,9 +1,11 @@
 #include "assetmanagerbase.h"
 
+#include <QFile>
+
 AssetManagerBase::AssetManagerBase(QObject *parent) : QObject(parent)
 {
     connect(&install_watcher_, &QFutureWatcher<QString>::resultReadyAt, this, &AssetManagerBase::on_unzip_asset);
-    connect(&unzip_watcher_, &QFutureWatcher<void>::finished, this, &AssetManagerBase::on_unzip_asset_complete);
+    connect(&unzip_watcher_, &QFutureWatcher<QString>::resultReadyAt, this, &AssetManagerBase::on_unzip_asset_complete);
 }
 
 
@@ -16,14 +18,25 @@ void AssetManagerBase::on_install_asset(QString asset_id)
 
 void AssetManagerBase::on_unzip_asset(int result_index)
 {
-    QString file_name = install_watcher_.resultAt(result_index);
+    QString filename = install_watcher_.resultAt(result_index);
 
-    auto unzip_task = this->unzip_asset(file_name);
+    if (!filename.isEmpty())
+    {
+        auto unzip_task = this->unzip_asset(filename);
 
-    unzip_watcher_.setFuture(unzip_task);
+        unzip_watcher_.setFuture(unzip_task);
+    }
 }
 
-void AssetManagerBase::on_unzip_asset_complete()
+void AssetManagerBase::on_unzip_asset_complete(int result_index)
 {
     qDebug() << "unzip complete";
+
+    QString filename = unzip_watcher_.resultAt(result_index);
+
+    if (!filename.isEmpty())
+    {
+        QFile file(filename);
+        file.remove();
+    }
 }

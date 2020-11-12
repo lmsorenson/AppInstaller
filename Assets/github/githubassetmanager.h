@@ -19,7 +19,7 @@ public:
 
     virtual void request_asset_ids() override;
     virtual QFuture<QString> download_asset(QString asset_id, QString url) override;
-    virtual QFuture<void> unzip_asset(QString file_name) override;
+    virtual QFuture<QString> unzip_asset(QString file_name) override;
 
 private slots:
     void on_assets_received(QNetworkReply *reply);
