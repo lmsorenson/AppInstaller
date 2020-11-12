@@ -18,55 +18,43 @@
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
 int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow);
 
-Download::Download(QObject *parent)
+Download::Download(QString directory, QString filename, QString tag, QString url, QString authorization_token, QWidget *parent)
     : QObject(parent)
+    , curl_(curl_easy_init())
+    , url_(url)
+    , auth_token_(authorization_token)
+    , directory_(directory)
+    , filename_(filename + tag)
+    , extension_(".zip")
+    , progress_dialog_(new progressdialog(parent))
+    , timer_(std::make_shared<QTimer>(this))
 {
-}
+    QObject::connect(this, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
+    QObject::connect(this, &Download::close_dialog, progress_dialog_, &progressdialog::close_dialog);
+    QObject::connect(timer_.get(), &QTimer::timeout, this, &Download::on_interval);
 
-Download::Download(QString tag, QString filename, QString url, QString authorization_token, QObject *parent)
-    : QObject(parent)
-{
-    qDebug() << "Initiating a file download...";
-    curl_ = curl_easy_init();
+    if (parent)
+        parent->setDisabled(true);
 
-    auto widget = dynamic_cast<QWidget*>(parent);
-
-    if (widget != nullptr)
+    if (progress_dialog_)
     {
-        qDebug() << "cast succeeded";
-        progress_dialog_ = new progressdialog(widget);
-        QObject::connect(this, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
-        QObject::connect(this, &Download::close_dialog, progress_dialog_, &progressdialog::close_dialog);
-        progress_dialog_->setWindowTitle(filename + tag + " download");
-        widget->setDisabled(true);
+        progress_dialog_->setWindowTitle(filename_ + " download");
         progress_dialog_->show();
         progress_dialog_->setDisabled(false);
     }
-    else
-    {
-        qDebug() << "cast failed";
-    }
 
-    timer_ = std::make_shared<QTimer>(this);
-    connect(timer_.get(), &QTimer::timeout, this, &Download::on_interval);
-    timer_->start(5);
-
-    tag_ = tag;
-    filename_ = filename;
-    url_ = url;
-    auth_token_ = authorization_token;
+    if (timer_)
+        timer_->start(5);
 }
 
 
-QFuture<void> Download::run()
+QFuture<QString> Download::run()
 {
     CURLcode res;
-    char out_filename[FILENAME_MAX];
-    sprintf(out_filename, "/Users/Shared/AgCab/%s%s.zip", filename_.toStdString().c_str(), tag_.toStdString().c_str());
 
     if ( curl_ != nullptr )
     {
-        FILE * fp = fopen(out_filename, "wp");
+        FILE * fp = fopen((directory_ + filename_ + extension_).toStdString().c_str(), "wp");
 
         progress_.lastruntime = 0;
         progress_.curl = curl_;
@@ -75,8 +63,6 @@ QFuture<void> Download::run()
 
         if (fp)
         {
-            qDebug() << "Sure could write the file." << url_;
-
             struct curl_slist *list = NULL;
             QString authorization_header = QString("Authorization: token ").append(auth_token_);
             list = curl_slist_append(list, authorization_header.toStdString().c_str());
@@ -97,14 +83,22 @@ QFuture<void> Download::run()
             curl_easy_setopt(curl_, CURLOPT_MAXREDIRS, 50L);
             curl_easy_setopt(curl_, CURLOPT_FOLLOWLOCATION, 1L);
 
+
             return QtConcurrent::run([&](){
+
                 res = curl_easy_perform(curl_);
 
-                timer_->stop();
                 emit make_progress(100);
                 emit close_dialog();
-                progress_dialog_->deleteLater();
-                progress_dialog_ = nullptr;
+
+                if (timer_ != nullptr)
+                    timer_->stop();
+
+                if (progress_dialog_ != nullptr)
+                {
+                    progress_dialog_->deleteLater();
+                    progress_dialog_ = nullptr;
+                }
 
                 auto widget = dynamic_cast<QWidget*>(parent());
 
@@ -112,6 +106,8 @@ QFuture<void> Download::run()
                 {
                     widget->setDisabled(false);
                 }
+
+                return filename_;
             });
         }
         else
@@ -120,13 +116,12 @@ QFuture<void> Download::run()
         }
     }
 
-    return QFuture<void>();
+    return QFuture<QString>();
 }
 
 void Download::on_interval()
 {
     double percentage = progress_.now / progress_.total;
-    qDebug() << "percent: " << percentage;
     emit make_progress(percentage * 100);
 }
 

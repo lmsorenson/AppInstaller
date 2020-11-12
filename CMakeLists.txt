@@ -24,6 +24,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #    endif()
 #endif()
 
+add_subdirectory(tests)
+
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt5 COMPONENTS Network REQUIRED)
 find_package(Qt5 COMPONENTS Concurrent REQUIRED)
@@ -36,13 +38,17 @@ if(ANDROID)
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    Assets/assetmanagerbase.cpp
+    Assets/assetmanagerbase.h
+          Assets/github/githubassetmanager.cpp
+          Assets/github/githubassetmanager.h
     Assets/download.h
     Assets/download.cpp
     Assets/progressdialog.cpp
     Assets/progressdialog.h
     Assets/progressdialog.ui
-    Zip/zippackage.cpp
-    Zip/zippackage.h
+    Archives/zippackage.cpp
+    Archives/zippackage.h
   )
 else()
   add_executable(ReleaseInstaller
@@ -50,13 +56,17 @@ else()
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    Assets/assetmanagerbase.cpp
+    Assets/assetmanagerbase.h
+          Assets/github/githubassetmanager.cpp
+          Assets/github/githubassetmanager.h
     Assets/download.h
     Assets/download.cpp
     Assets/progressdialog.cpp
     Assets/progressdialog.h
     Assets/progressdialog.ui
-    Zip/zippackage.cpp
-    Zip/zippackage.h
+    Archives/zippackage.cpp
+    Archives/zippackage.h
   )
 endif()
 

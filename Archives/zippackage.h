@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QFuture>
 
 class ZipPackage : public QObject
 {
@@ -8,7 +9,7 @@ class ZipPackage : public QObject
 public:
     explicit ZipPackage(QString path, QString file_name, QString extension);
     QStringList list();
-    void extract();
+    QFuture<void> extract();
 
 signals:
 

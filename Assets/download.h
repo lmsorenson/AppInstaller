@@ -31,15 +31,10 @@ class Download : public QObject
     Q_OBJECT
 
 public:
-    explicit Download(QObject *parent = nullptr);
-    explicit Download(QString tag, QString filename, QString url, QString authorization_token, QObject *parent = nullptr);
-    Download (const Download &Download);
+    explicit Download(QString directory, QString filename, QString tag, QString url, QString authorization_token, QWidget *parent);
     ~Download();
 
-
-    Download& operator=(const Download&);
-
-    QFuture<void> run();
+    QFuture<QString> run();
 
 public slots:
     void on_interval();
@@ -50,9 +45,10 @@ signals:
 
 private:
     QString url_;
-    QString tag_;
-    QString filename_;
     QString auth_token_;
+    QString directory_;
+    QString filename_;
+    QString extension_;
 
     CURL *curl_;
     progressdialog *progress_dialog_;

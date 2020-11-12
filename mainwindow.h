@@ -2,7 +2,7 @@
 
 #include <QMainWindow>
 #include <QNetworkAccessManager>
-#include <QMap>
+#include <QList>
 #include <QtConcurrent>
 
 QT_BEGIN_NAMESPACE
@@ -17,17 +17,18 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void provide_assets(QStringList asset_ids);
+
 private slots:
-    void on_network_connection_made(QNetworkReply *reply);
     void on_selection_changed(const QItemSelection& selection);
     void on_install();
-    void on_new_zip();
+
+signals:
+    void install(QString asset_id);
 
 private:
     Ui::MainWindow *ui;
-    QNetworkAccessManager network_;
-    QMap<QString, QString> map_;
-    class Download * active_download_;
-    QFuture<void> future_;
-    QFutureWatcher<void> watcher_;
+
+    QString title_;
 };
