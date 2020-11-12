@@ -19,6 +19,8 @@ void AssetManagerBase::on_unzip_asset(int result_index)
     QString file_name = install_watcher_.resultAt(result_index);
 
     auto unzip_task = this->unzip_asset(file_name);
+
+    unzip_watcher_.setFuture(unzip_task);
 }
 
 void AssetManagerBase::on_unzip_asset_complete()
