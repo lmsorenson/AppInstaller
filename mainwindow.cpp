@@ -8,10 +8,10 @@
 #include <QDebug>
 
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QString project_name, QString install_directory, QString asset_name, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , title_("AgCabLab Installer")
+    , title_(project_name + " Installer")
 {
     ui->setupUi(this);
 
@@ -19,17 +19,21 @@ MainWindow::MainWindow(QWidget *parent)
     ui->listView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
     ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+    ui->InstallDirectoryDisplay->setText(install_directory);
+    ui->AssetNameDisplay->setText(asset_name);
+
+    ui->install->setDefault(true);
+    ui->install->setDisabled(true);
+    ui->use->setDisabled(true);
+    ui->remove->setDisabled(true);
+
     connect(ui->install, &QPushButton::released, this, &MainWindow::on_install);
+    connect(ui->use, &QPushButton::released, this, &MainWindow::on_use);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-void MainWindow::on_selection_changed(const QItemSelection& selection)
-{
-    qDebug() << "Selection changed: " << selection.indexes();
 }
 
 void MainWindow::provide_assets(QStringList asset_ids)
@@ -50,15 +54,59 @@ void MainWindow::provide_assets(QStringList asset_ids)
     connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(on_selection_changed(QItemSelection)));
 }
 
+void MainWindow::on_selection_changed(const QItemSelection& selection)
+{
+    if (selection.indexes().size() == 1)
+    {
+        auto model_index = selection.indexes().takeFirst();
+        if (model_index.isValid())
+        {
+            auto data = model_index.data().value<QString>();
+            qDebug() << "Selection changed to: " << data;
+
+            emit validate_actions(data);
+        }
+    }
+}
+
+void MainWindow::on_selected_install_exists(bool install_exists)
+{
+    if (install_exists)
+    {
+        ui->install->setDisabled(true);
+        ui->use->setDisabled(false);
+    }
+    else
+    {
+        ui->install->setDisabled(false);
+        ui->use->setDisabled(true);
+    }
+}
+
 void MainWindow::on_install()
 {
     auto selectedIndex = ui->listView->currentIndex();
 
-    auto model = dynamic_cast<QStringListModel*>(ui->listView->model());
-    auto data = model->itemData(selectedIndex);
-    auto tag = data.first().value<QString>();
+    if (selectedIndex.isValid())
+    {
+        auto data = selectedIndex.data().value<QString>();
 
-    emit install(tag);
+        qDebug() << "Attempting to install: " << data;
+
+        emit install(data);
+    }
 }
 
+void MainWindow::on_use()
+{
+    auto selectedIndex = ui->listView->currentIndex();
 
+    if (selectedIndex.isValid())
+    {
+        auto data = selectedIndex.data().value<QString>();
+
+        qDebug() << "Attempting to setup: " << data;
+
+        emit use(data);
+    }
+}

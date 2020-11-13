@@ -8,18 +8,24 @@
 #include <QTimer>
 #include <QFile>
 
+#include <unistd.h>
+
 #include <Assets/download.h>
 #include <Archives/zippackage.h>
 
 GitHubAssetManager::GitHubAssetManager(QString install_directory, GitHubProject project, QWidget *parent)
-: AssetManagerBase(parent)
+: AssetManagerBase(install_directory + ((install_directory.endsWith("/")) ? "" : "/"), parent)
 , github_username_(project.user_name)
 , github_project_(project.project_name)
 , github_asset_name_(project.asset_name)
 , github_token_(project.access_token)
-, install_directory_(install_directory)
 {
     QObject::connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received);
+}
+
+QString GitHubAssetManager::generate_installation_name(QString tag)
+{
+    return (github_asset_name_ + tag);
 }
 
 void GitHubAssetManager::request_asset_ids()
@@ -82,4 +88,22 @@ QFuture<QString> GitHubAssetManager::unzip_asset(QString file_name)
     active_archive_ = new ZipPackage(install_directory_, file_name, ".zip");
 
     return active_archive_->extract();
+}
+
+void GitHubAssetManager::use_asset(QString filename)
+{
+
+    auto command = QString(filename + "/AgCab.app");
+    qDebug() << "use: " << command;
+
+    auto link_name = QString(install_directory_ + "AgCabLab");
+
+    if (!link_name.isEmpty())
+    {
+        QFile file(link_name);
+        file.remove();
+    }
+
+
+    symlink(command.toStdString().c_str(), link_name.toStdString().c_str());
 }

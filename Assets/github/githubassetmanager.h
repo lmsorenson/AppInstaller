@@ -20,6 +20,8 @@ public:
     virtual void request_asset_ids() override;
     virtual QFuture<QString> download_asset(QString asset_id, QString url) override;
     virtual QFuture<QString> unzip_asset(QString file_name) override;
+    virtual void use_asset(QString filename) override;
+    virtual QString generate_installation_name(QString tag) override;
 
 private slots:
     void on_assets_received(QNetworkReply *reply);
@@ -34,7 +36,6 @@ private:
     QString github_project_;
     QString github_token_;
     QString github_asset_name_;
-    QString install_directory_;
 
     class Download * active_download_;
     class ZipPackage * active_archive_;
