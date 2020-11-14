@@ -15,7 +15,7 @@ class GitHubAssetManager : public AssetManagerBase
 {
     Q_OBJECT
 public:
-    explicit GitHubAssetManager(QString install_directory, GitHubProject project, QWidget *parent);
+    explicit GitHubAssetManager(QString asset_name, QString executable_name, QString install_directory, GitHubProject project, QWidget *parent);
 
     virtual void request_asset_ids() override;
 
@@ -36,12 +36,17 @@ signals:
 
 
 private:
-    QNetworkAccessManager network_;
+    // installed asset names.
+    QString asset_name_;
+    QString executable_name_;
+
+    // remote asset names.
     QString github_username_;
     QString github_project_;
     QString github_token_;
-    QString github_asset_name_;
+    QString github_required_asset_name_;
 
+    QNetworkAccessManager network_;
     class Download * active_download_;
     class ZipPackage * active_archive_;
 };

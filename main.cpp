@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     MainWindow w(project.project_name, install_directory, project.asset_name + ".zip");
     w.show();
 
-    auto asset_manager = new GitHubAssetManager(install_directory, project, &w);
+    auto asset_manager = new GitHubAssetManager("AgCabLab", "AgCab.app", install_directory, project, &w);
     QObject::connect(asset_manager, &GitHubAssetManager::provide_asset_ids, &w, &MainWindow::provide_assets);
     QObject::connect(&w, &MainWindow::install, asset_manager, &GitHubAssetManager::on_install_asset);
     QObject::connect(&w, &MainWindow::use, asset_manager, &GitHubAssetManager::on_use_asset);

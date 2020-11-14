@@ -13,11 +13,13 @@
 #include <Assets/download.h>
 #include <Archives/zippackage.h>
 
-GitHubAssetManager::GitHubAssetManager(QString install_directory, GitHubProject project, QWidget *parent)
+GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_name, QString install_directory, GitHubProject project, QWidget *parent)
 : AssetManagerBase(install_directory + ((install_directory.endsWith("/")) ? "" : "/"), parent)
+, asset_name_(asset_name)
+, executable_name_(executable_name)
 , github_username_(project.user_name)
 , github_project_(project.project_name)
-, github_asset_name_(project.asset_name)
+, github_required_asset_name_(project.asset_name)
 , github_token_(project.access_token)
 {
     QObject::connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received);
@@ -25,7 +27,7 @@ GitHubAssetManager::GitHubAssetManager(QString install_directory, GitHubProject 
 
 QString GitHubAssetManager::generate_installation_name(QString tag)
 {
-    return (github_asset_name_ + tag);
+    return (github_required_asset_name_ + tag);
 }
 
 void GitHubAssetManager::request_asset_ids()
@@ -55,7 +57,7 @@ void GitHubAssetManager::on_assets_received(QNetworkReply *reply)
                 auto assets = item["assets"].toArray();
                 for (auto it = assets.begin(); it != assets.end(); it++) {
                     auto asset = it->toObject();
-                    if (asset["name"] == (github_asset_name_ + ".zip")) {
+                    if (asset["name"] == (github_required_asset_name_ + ".zip")) {
                         request_map_.insert(item["tag_name"].toString(), asset["url"].toString());
                         list << item["tag_name"].toString();
                     }
@@ -76,7 +78,7 @@ QFuture<QString> GitHubAssetManager::download_asset(QString asset_id, QString ur
 {
     qDebug() << "download initiated for Tag: " << asset_id << "at REQUEST URL: " << url;
 
-    active_download_ = new Download(install_directory_, github_asset_name_, asset_id, url, github_token_, dynamic_cast<QWidget*>(this->parent()));
+    active_download_ = new Download(install_directory_, github_required_asset_name_, asset_id, url, github_token_, dynamic_cast<QWidget*>(this->parent()));
 
     QObject::connect(active_download_, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
 
@@ -112,10 +114,10 @@ void GitHubAssetManager::unzip_cleanup(int result_index)
 void GitHubAssetManager::use_asset(QString directory_name)
 {
 
-    auto command = QString(directory_name + "/AgCab.app");
+    auto command = QString(directory_name + "/" + executable_name_);
     qDebug() << "Use: " << command;
 
-    auto link_name = QString(install_directory_ + "AgCabLab");
+    auto link_name = QString(install_directory_ + asset_name_);
 
     if (!link_name.isEmpty())
     {
