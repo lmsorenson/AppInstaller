@@ -113,7 +113,7 @@ void GitHubAssetManager::use_asset(QString directory_name)
 {
 
     auto command = QString(directory_name + "/AgCab.app");
-    qDebug() << "use: " << command;
+    qDebug() << "Use: " << command;
 
     auto link_name = QString(install_directory_ + "AgCabLab");
 
