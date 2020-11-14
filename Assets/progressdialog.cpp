@@ -11,7 +11,6 @@ progressdialog::progressdialog(QWidget *parent) :
 
     this->setWindowFlag(Qt::WindowStaysOnTopHint);
     this->setWindowModality(Qt::WindowModality::WindowModal);
-
 }
 
 progressdialog::progressdialog(const progressdialog &progressdialog)
@@ -19,10 +18,13 @@ progressdialog::progressdialog(const progressdialog &progressdialog)
     ui->setupUi(this);
 }
 
+void progressdialog::set_title(QString title)
+{
+    ui->label->setText("Downloading " + title + ":");
+}
+
 void progressdialog::add_progress(int progress)
 {
-    ui->label->setText(this->windowTitle());
-    qDebug() << "Received progress: " << progress;
     ui->progressBar->setValue(progress);
 }
 

@@ -21,27 +21,19 @@ int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,  
 Download::Download(QString directory, QString filename, QString tag, QString url, QString authorization_token, QWidget *parent)
     : QObject(parent)
     , curl_(curl_easy_init())
+    , file_(nullptr)
     , url_(url)
     , auth_token_(authorization_token)
     , directory_(directory + ((directory.endsWith("/")) ? "" : "/"))
     , filename_(filename + tag)
     , extension_(".zip")
-    , progress_dialog_(new progressdialog(parent))
     , timer_(std::make_shared<QTimer>(this))
 {
-    QObject::connect(this, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
-    QObject::connect(this, &Download::close_dialog, progress_dialog_, &progressdialog::close_dialog);
     QObject::connect(timer_.get(), &QTimer::timeout, this, &Download::on_interval);
+    QObject::connect(&download_watcher_, &QFutureWatcher<QString>::finished, this, &Download::on_download_finished);
 
     if (parent)
         parent->setDisabled(true);
-
-    if (progress_dialog_)
-    {
-        progress_dialog_->setWindowTitle(filename_ + " download");
-        progress_dialog_->show();
-        progress_dialog_->setDisabled(false);
-    }
 
     if (timer_)
         timer_->start(5);
@@ -54,14 +46,14 @@ QFuture<QString> Download::run()
 
     if ( curl_ != nullptr )
     {
-        FILE * fp = fopen((directory_ + filename_ + extension_).toStdString().c_str(), "wp");
+        file_ = fopen((directory_ + filename_ + extension_).toStdString().c_str(), "wp");
 
         progress_.lastruntime = 0;
         progress_.curl = curl_;
         progress_.now = 0;
         progress_.total = 0;
 
-        if (fp)
+        if (file_)
         {
             struct curl_slist *list = NULL;
             QString authorization_header = QString("Authorization: token ").append(auth_token_);
@@ -76,7 +68,7 @@ QFuture<QString> Download::run()
             curl_easy_setopt(curl_, CURLOPT_XFERINFOFUNCTION, progress_callback);
             curl_easy_setopt(curl_, CURLOPT_XFERINFODATA, &progress_);
             curl_easy_setopt(curl_, CURLOPT_NOPROGRESS, 0L);
-            curl_easy_setopt(curl_, CURLOPT_WRITEDATA, fp);
+            curl_easy_setopt(curl_, CURLOPT_WRITEDATA, file_);
             curl_easy_setopt(curl_, CURLOPT_VERBOSE, 1L);
             curl_easy_setopt(curl_, CURLOPT_TCP_KEEPALIVE, 1L);
             curl_easy_setopt(curl_, CURLOPT_USERAGENT, "curl/7.42.0");
@@ -84,31 +76,15 @@ QFuture<QString> Download::run()
             curl_easy_setopt(curl_, CURLOPT_FOLLOWLOCATION, 1L);
 
 
-            return QtConcurrent::run([&](){
-
+            auto task = QtConcurrent::run([&](){
                 res = curl_easy_perform(curl_);
-
-                emit make_progress(100);
-                emit close_dialog();
-
-                if (timer_ != nullptr)
-                    timer_->stop();
-
-                if (progress_dialog_ != nullptr)
-                {
-                    progress_dialog_->deleteLater();
-                    progress_dialog_ = nullptr;
-                }
-
-                auto widget = dynamic_cast<QWidget*>(parent());
-
-                if (widget != nullptr)
-                {
-                    widget->setDisabled(false);
-                }
 
                 return filename_;
             });
+
+            download_watcher_.setFuture(task);
+
+            return task;
         }
         else
         {
@@ -125,6 +101,17 @@ void Download::on_interval()
     emit make_progress(percentage * 100);
 }
 
+void Download::on_download_finished()
+{
+    qDebug() << "Download finished. ";
+    emit make_progress(100);
+
+    fclose(file_);
+    file_ = nullptr;
+
+    if (timer_ != nullptr)
+        timer_->stop();
+}
 
 Download::~Download()
 {

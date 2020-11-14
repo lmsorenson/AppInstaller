@@ -72,15 +72,24 @@ void GitHubAssetManager::on_assets_received(QNetworkReply *reply)
     }
 }
 
-
-
 QFuture<QString> GitHubAssetManager::download_asset(QString asset_id, QString url)
 {
     qDebug() << "download initiated for Tag: " << asset_id << "at REQUEST URL: " << url;
 
     active_download_ = new Download(install_directory_, github_asset_name_, asset_id, url, github_token_, dynamic_cast<QWidget*>(this->parent()));
 
+    QObject::connect(active_download_, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
+
     return active_download_->run();
+}
+
+void GitHubAssetManager::download_cleanup()
+{
+    qDebug() << "The GitHub asset manager completed a download.";
+
+    QObject::disconnect(active_download_, &Download::make_progress, nullptr, nullptr);
+    delete active_download_;
+    active_download_ = nullptr;
 }
 
 QFuture<QString> GitHubAssetManager::unzip_asset(QString file_name)
@@ -90,10 +99,20 @@ QFuture<QString> GitHubAssetManager::unzip_asset(QString file_name)
     return active_archive_->extract();
 }
 
-void GitHubAssetManager::use_asset(QString filename)
+void GitHubAssetManager::unzip_cleanup(int result_index)
+{
+    qDebug() << "The GitHub asset manager finished an unzip operation. ";
+
+    delete active_archive_;
+    active_archive_ = nullptr;
+
+    AssetManagerBase::unzip_cleanup(result_index);
+}
+
+void GitHubAssetManager::use_asset(QString directory_name)
 {
 
-    auto command = QString(filename + "/AgCab.app");
+    auto command = QString(directory_name + "/AgCab.app");
     qDebug() << "use: " << command;
 
     auto link_name = QString(install_directory_ + "AgCabLab");
@@ -103,7 +122,6 @@ void GitHubAssetManager::use_asset(QString filename)
         QFile file(link_name);
         file.remove();
     }
-
 
     symlink(command.toStdString().c_str(), link_name.toStdString().c_str());
 }

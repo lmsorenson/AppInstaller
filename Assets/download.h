@@ -3,7 +3,7 @@
 #include "progressdialog.h"
 
 #include <curl/curl.h>
-#include <QFuture>
+#include <QFutureWatcher>
 
 #if LIBCURL_VERSION_NUM >= 0x073d00
 #define TIME_IN_US 1
@@ -37,11 +37,13 @@ public:
     QFuture<QString> run();
 
 public slots:
+    void on_download_finished();
+
+private slots:
     void on_interval();
 
 signals:
     void make_progress(int progress);
-    void close_dialog();
 
 private:
     QString url_;
@@ -51,8 +53,8 @@ private:
     QString extension_;
 
     CURL *curl_;
-    progressdialog *progress_dialog_;
+    FILE * file_;
     myprogress progress_;
-
+    QFutureWatcher<QString> download_watcher_;
     std::shared_ptr<QTimer> timer_;
 };

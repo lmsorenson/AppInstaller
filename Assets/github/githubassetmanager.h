@@ -18,9 +18,14 @@ public:
     explicit GitHubAssetManager(QString install_directory, GitHubProject project, QWidget *parent);
 
     virtual void request_asset_ids() override;
+
     virtual QFuture<QString> download_asset(QString asset_id, QString url) override;
+    virtual void download_cleanup() override;
+
     virtual QFuture<QString> unzip_asset(QString file_name) override;
-    virtual void use_asset(QString filename) override;
+    virtual void unzip_cleanup(int result_index) override;
+
+    virtual void use_asset(QString directory_name) override;
     virtual QString generate_installation_name(QString tag) override;
 
 private slots:

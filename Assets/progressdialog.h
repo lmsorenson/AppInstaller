@@ -18,7 +18,8 @@ public:
     progressdialog(const progressdialog &progressdialog);
     ~progressdialog();
 
-
+public:
+    void set_title(QString title);
 
 public slots:
     void add_progress(int progress);
