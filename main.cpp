@@ -3,15 +3,14 @@
 #include <QObject>
 #include <Assets/github/githubassetmanager.h>
 
+void LoadProject(GitHubProject &project, QString &install_directory);
+
 int main(int argc, char *argv[])
 {
     GitHubProject project;
-    project.user_name = "lmsorenson";
-    project.project_name = "AgCabLab";
-    project.asset_name = "AgCab";
-    project.access_token = "e1d59c7b6764186b9a4adca957a7dadead2e4ccf";
+    QString install_directory;
 
-    QString install_directory = "/Users/Shared/AgCab/Game";
+    LoadProject(project, install_directory);
 
     QApplication a(argc, argv);
     MainWindow w(project.project_name, install_directory, project.asset_name + ".zip");
@@ -26,4 +25,27 @@ int main(int argc, char *argv[])
     asset_manager->request_asset_ids();
 
     return a.exec();
+}
+
+void LoadProject(GitHubProject &project, QString &install_directory)
+{
+    QString val;
+    QFile file;
+    file.setFileName("/Users/Shared/AgCab/config.json");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    val = file.readAll();
+    file.close();
+
+    QJsonDocument document = QJsonDocument::fromJson(val.toUtf8());
+
+    if(document.isObject())
+    {
+        auto object = document.object();
+
+        project.user_name = object["gh_user_name"].toString();
+        project.project_name = object["gh_project_name"].toString();
+        project.asset_name = object["gh_asset_name"].toString();
+        project.access_token = object["gh_access_token"].toString();
+        install_directory = object["install_directory"].toString();
+    }
 }
