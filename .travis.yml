@@ -3,6 +3,10 @@ compiler:
   - clang
 os:
   - osx
+addons:
+  homebrew:
+    packages:
+    - qt
 before_script:
   - mkdir build
   - ls -la
