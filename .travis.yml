@@ -6,4 +6,6 @@ os:
 before_script:
   - mkdir build
   - ls -la
+  - cd build
 script:
+  - cmake ..
