@@ -112,8 +112,7 @@ message ("${CMAKE_INSTALL_PREFIX}")
 # Destination paths below are relative to ${CMAKE_INSTALL_PREFIX}
 install(TARGETS ${PROJECT_NAME}
         BUNDLE DESTINATION . COMPONENT Runtime
-        RUNTIME DESTINATION ${INSTALL_RUNTIME_DIR} COMPONENT Runtime
-        )
+        RUNTIME DESTINATION ${INSTALL_RUNTIME_DIR} COMPONENT Runtime)
 
 # Note Mac specific extension .app
 set(APPS "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}.app")
