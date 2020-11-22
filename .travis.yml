@@ -1,0 +1,9 @@
+language: c++
+compiler:
+  - clang
+os:
+  - osx
+before_script:
+  - mkdir build
+  - ls -la
+script:
