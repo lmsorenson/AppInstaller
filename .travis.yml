@@ -7,6 +7,7 @@ addons:
   homebrew:
     packages:
     - qt
+    update: true
 before_script:
   - mkdir build
   - ls -la
