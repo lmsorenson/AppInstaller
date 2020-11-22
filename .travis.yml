@@ -2,7 +2,7 @@ language: c++
 compiler:
   - clang
 os:
-  - osx
+  - osx10.15
 addons:
   homebrew:
     packages:
