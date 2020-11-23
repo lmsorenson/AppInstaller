@@ -5,11 +5,6 @@ jobs:
   include:
     - os: osx
       osx_image: xcode12.2
-  env:
-    - PATH="/usr/local/opt/qt/bin:$PATH"
-    - LDFLAGS="-L/usr/local/opt/qt/lib"
-    - CPPFLAGS="-I/usr/local/opt/qt/include"
-    - PKG_CONFIG_PATH="/usr/local/opt/qt/lib/pkgconfig"
 addons:
   homebrew:
     packages:
@@ -18,16 +13,6 @@ addons:
       - qt
     update: true
 before_script:
-  - ls /usr/local/opt/qt/bin
-  - ls -la ~/
-  - ls /usr/local/opt/qt/lib/
-  - ls /usr/local/opt/qt/lib/cmake
-  - ls /usr/local/opt/qt/lib/pkgconfig
-  - ls $(brew --prefix qt5)/lib/cmake/Qt5
-  - echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.bash_profile
-  - export LDFLAGS="-L/usr/local/opt/qt/lib"
-  - export CPPFLAGS="-I/usr/local/opt/qt/include"
-  - export PKG_CONFIG_PATH="/usr/local/opt/qt/lib/pkgconfig"
   - mkdir build
   - ls -la
   - cd build

@@ -69,14 +69,13 @@ else()
 endif()
 
 include_directories(${CURL_INCLUDE_DIR})
-include_directories(${LibArchive_INCLUDE_DIR})
+#include_directories(${LibArchive_INCLUDE_DIR})
 
 target_link_libraries(ReleaseInstaller PRIVATE Qt5::Widgets Qt5::Network Qt5::Concurrent ${CURL_LIBRARIES} ${LibArchive_LIBRARIES})
 
 set(prefix "${PROJECT_NAME}.app/Contents")
 set(INSTALL_RUNTIME_DIR "${prefix}/MacOS")
 set(INSTALL_CMAKE_DIR "${prefix}/Resources")
-
 
 macro(install_qt5_plugin _qt_plugin_name _qt_plugins_var _prefix)
   get_target_property(_qt_plugin_path "${_qt_plugin_name}" LOCATION)
@@ -97,9 +96,6 @@ macro(install_qt5_plugin _qt_plugin_name _qt_plugins_var _prefix)
 endmacro()
 
 install_qt5_plugin("Qt5::QCocoaIntegrationPlugin" QT_PLUGINS ${prefix})
-#install_qt5_plugin("Qt5::Widgets" QT_PLUGINS ${prefix})
-#install_qt5_plugin("Qt5::Concurrent" QT_PLUGINS ${prefix})
-#install_qt5_plugin("Qt5::Network" QT_PLUGINS ${prefix})
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
         "[Paths]\nPlugins = ${_qt_plugin_dir}\n")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
