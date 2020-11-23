@@ -11,6 +11,7 @@ addons:
     - qt
     update: true
 before_script:
+  - ls /usr/local/opt/qt/bin
   - echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.zshrc
   - export LDFLAGS="-L/usr/local/opt/qt/lib"
   - export CPPFLAGS="-I/usr/local/opt/qt/include"
