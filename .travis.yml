@@ -20,6 +20,8 @@ before_script:
   - brew install qt
   - ls /usr/local/opt/qt/bin
   - ls -la ~/
+  - ls /usr/local/opt/qt/lib/
+  - ls /usr/local/opt/qt/lib/pkgconfig
   - echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.bash_profile
   - export LDFLAGS="-L/usr/local/opt/qt/lib"
   - export CPPFLAGS="-I/usr/local/opt/qt/include"
