@@ -1,9 +1,10 @@
 language: c++
 compiler:
   - clang
-os:
-  - osx
-    osx_image: xcode12.2
+jobs:
+  include:
+    - os: osx
+      osx_image: xcode12.2
 addons:
   homebrew:
     packages:
