@@ -12,7 +12,8 @@ addons:
     update: true
 before_script:
   - ls /usr/local/opt/qt/bin
-  - echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.zshrc
+  - ls ~/
+  - echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.bash_profile
   - export LDFLAGS="-L/usr/local/opt/qt/lib"
   - export CPPFLAGS="-I/usr/local/opt/qt/include"
   - export PKG_CONFIG_PATH="/usr/local/opt/qt/lib/pkgconfig"
