@@ -1,0 +1,38 @@
+language: c++
+compiler:
+  - clang
+jobs:
+  include:
+    - os: osx
+      osx_image: xcode12.2
+addons:
+  homebrew:
+    packages:
+      - libarchive
+      - curl
+      - qt
+    update: true
+before_script:
+  - mkdir build
+  - ls -la
+  - cd build
+script:
+  - |
+    cmake \
+    -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 \
+    -DLibArchive_INCLUDE_DIR=$(brew --prefix libarchive)/include \
+    -DLibArchive_LIBRARIES=$(brew --prefix libarchive)/lib \
+    ..
+  - make
+  - cpack -G DragNDrop
+before_deploy:
+  # Set up git user name and tag this commit
+  - git config --local user.name "lmsorenson"
+  - git config --local user.email "lsorenson20@gmail.com"
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - git tag $TRAVIS_TAG
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file: "build/ReleaseInstaller-0.1.1-Darwin.dmg"
+  skip_cleanup: true

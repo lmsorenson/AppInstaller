@@ -24,12 +24,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #    endif()
 #endif()
 
-add_subdirectory(tests)
-
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt5 COMPONENTS Network REQUIRED)
 find_package(Qt5 COMPONENTS Concurrent REQUIRED)
-find_package(LibArchive REQUIRED)
+find_package(LibArchive)
 find_package(CURL REQUIRED)
 
 if(ANDROID)
@@ -79,7 +77,6 @@ set(prefix "${PROJECT_NAME}.app/Contents")
 set(INSTALL_RUNTIME_DIR "${prefix}/MacOS")
 set(INSTALL_CMAKE_DIR "${prefix}/Resources")
 
-
 macro(install_qt5_plugin _qt_plugin_name _qt_plugins_var _prefix)
   get_target_property(_qt_plugin_path "${_qt_plugin_name}" LOCATION)
   message("checking if plugin path exists")
@@ -99,9 +96,6 @@ macro(install_qt5_plugin _qt_plugin_name _qt_plugins_var _prefix)
 endmacro()
 
 install_qt5_plugin("Qt5::QCocoaIntegrationPlugin" QT_PLUGINS ${prefix})
-#install_qt5_plugin("Qt5::Widgets" QT_PLUGINS ${prefix})
-#install_qt5_plugin("Qt5::Concurrent" QT_PLUGINS ${prefix})
-#install_qt5_plugin("Qt5::Network" QT_PLUGINS ${prefix})
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
         "[Paths]\nPlugins = ${_qt_plugin_dir}\n")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/qt.conf"
