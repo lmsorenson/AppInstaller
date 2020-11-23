@@ -2,7 +2,8 @@ language: c++
 compiler:
   - clang
 os:
-  - osx 15
+  - osx
+    osx_image: xcode12.2
 addons:
   homebrew:
     packages:
