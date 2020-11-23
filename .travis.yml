@@ -1,6 +1,6 @@
 language: c++
-compiler:
-  - clang
+os: osx
+osx_image: xcode11.6
 jobs:
   include:
     - os: osx
