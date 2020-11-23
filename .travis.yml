@@ -9,6 +9,8 @@ addons:
   homebrew:
     packages:
     - qt
+    - qtbase5-dev
+    - qtdeclarative5-dev
     update: true
 before_script:
   - mkdir build
