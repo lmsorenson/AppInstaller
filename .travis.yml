@@ -13,7 +13,9 @@ jobs:
 addons:
   homebrew:
     packages:
-    - qt
+      - libarchive
+      - curl
+      - qt
     update: true
 before_script:
   - ls /usr/local/opt/qt/bin
