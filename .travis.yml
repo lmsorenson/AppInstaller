@@ -38,6 +38,6 @@ deploy:
   file: "ReleaseInstaller-0.1.1-Darwin.dmg"
   skip_cleanup: true
   name: "Installer 0.0.1"
-  body: First try
+  body: "First try"
   tag_name: "v0.0.1-alpha"
   prerelease: true
