@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ReleaseInstaller LANGUAGES CXX)
+project(ReleaseInstaller LANGUAGES CXX VERSION 1.1.0)
+
+message("RELEASE_INSTALLER_VERSION ${PROJECT_VERSION}")
+set(ENV{"RELEASE_INSTALLER_VERSION"} ${PROJECT_VERSION})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

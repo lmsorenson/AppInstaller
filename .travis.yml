@@ -24,6 +24,7 @@ script:
     -DLibArchive_INCLUDE_DIR=$(brew --prefix libarchive)/include \
     -DLibArchive_LIBRARIES=$(brew --prefix libarchive)/lib \
     ..
+  - printenv
   - make
   - cpack -G DragNDrop
 before_deploy:
@@ -35,9 +36,9 @@ before_deploy:
 deploy:
   provider: releases
   api_key: ${GITHUB_TOKEN}
-  file: "ReleaseInstaller-0.1.1-Darwin.dmg"
+  file: concat("ReleaseInstaller-", env(RELEASE_INSTALLER_VERSION), "-Darwin.dmg")
   skip_cleanup: true
-  name: "Installer 0.0.1"
+  name: env(RELEASE_INSTALLER_VERSION)
   body: "First try"
-  tag_name: "v0.0.1-alpha"
+  tag_name: concat("v", env(RELEASE_INSTALLER_VERSION), "-alpha")
   prerelease: true
