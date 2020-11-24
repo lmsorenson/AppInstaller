@@ -31,14 +31,17 @@ before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "lmsorenson"
   - git config --local user.email "lsorenson20@gmail.com"
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-  - git tag $TRAVIS_TAG
+#  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+#  - git tag $TRAVIS_TAG
+  - export TRAVIS_TAG=concat("v", env(RELEASE_INSTALLER_VERSION), "-alpha")
+  - export RELEASE_FILE_NAME=concat("ReleaseInstaller-", env(RELEASE_INSTALLER_VERSION), "-Darwin.dmg")
+  - export RELEASE_NAME=env(RELEASE_INSTALLER_VERSION)
 deploy:
   provider: releases
   api_key: ${GITHUB_TOKEN}
-  file: concat("ReleaseInstaller-", env(RELEASE_INSTALLER_VERSION), "-Darwin.dmg")
+  file: ${RELEASE_FILE_NAME}
   skip_cleanup: true
-  name: env(RELEASE_INSTALLER_VERSION)
+  name: ${RELEASE_NAME}
   body: "First try"
-  tag_name: concat("v", env(RELEASE_INSTALLER_VERSION), "-alpha")
+  tag_name: ${TRAVIS_TAG}
   prerelease: true
