@@ -1,6 +1,9 @@
 language: c++
 os: osx
 osx_image: xcode12.2
+env:
+  global:
+    - DEPLOY_VERSION=$(<version.txt)
 jobs:
   include:
     - os: osx
@@ -19,14 +22,17 @@ before_script:
   - cd build
 script:
   - |
-    cmake \
+    cmake\
     -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 \
+    -DDEPLOY_VERSION=${DEPLOY_VERSION} \
     -DLibArchive_INCLUDE_DIR=$(brew --prefix libarchive)/include \
     -DLibArchive_LIBRARIES=$(brew --prefix libarchive)/lib \
     ..
-    export DEPLOY_TAG="v$RELEASE_INSTALLER_VERSION-alpha"
-    export DEPLOY_FILE_NAME="ReleaseInstaller-$RELEASE_INSTALLER_VERSION-Darwin.dmg"
-    export DEPLOY_NAME="Release Installer $RELEASE_INSTALLER_VERSION"
+    deploy_version=${DEPLOY_VERSION}
+    echo ${deploy_version}
+    export DEPLOY_TAG="v${deploy_version}-alpha"
+    export DEPLOY_FILE_NAME="ReleaseInstaller-${deploy_version}-Darwin.dmg"
+    export DEPLOY_NAME="Release Installer ${deploy_version}"
     printenv
   - make
   - cpack -G DragNDrop
