@@ -6,6 +6,8 @@
 
 void LoadProject(GitHubProject &project, QString &install_directory);
 
+static GitHubAssetManager * asset_manager = nullptr;
+
 int main(int argc, char *argv[])
 {
 
@@ -18,10 +20,10 @@ int main(int argc, char *argv[])
     MainWindow w(project.project_name, install_directory, project.asset_name + ".zip");
     w.show();
 
+    asset_manager = new GitHubAssetManager("AgCabLab", "AgCab.app", install_directory, project, &w);
+
     try
     {
-        auto asset_manager = new GitHubAssetManager("AgCabLab", "AgCab.app", install_directory, project, &w);
-
         if (!asset_manager)
         {
             qDebug() << "Asset manager is null.";
