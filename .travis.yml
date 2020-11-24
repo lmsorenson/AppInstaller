@@ -28,9 +28,9 @@ script:
     -DLibArchive_LIBRARIES=$(brew --prefix libarchive)/lib \
     ..
   - echo "${DEPLOY_VERSION}"
-  - export DEPLOY_TAG="v${deploy_version}-alpha"
-  - export DEPLOY_FILE_NAME="ReleaseInstaller-${deploy_version}-Darwin.dmg"
-  - export DEPLOY_NAME="Release Installer ${deploy_version}"
+  - export DEPLOY_TAG="v${DEPLOY_VERSION}-alpha"
+  - export DEPLOY_FILE_NAME="ReleaseInstaller-${DEPLOY_VERSION}-Darwin.dmg"
+  - export DEPLOY_NAME="Release Installer ${DEPLOY_VERSION}"
   - printenv
   - make
   - cpack -G DragNDrop
