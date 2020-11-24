@@ -16,6 +16,7 @@ class GitHubAssetManager : public AssetManagerBase
     Q_OBJECT
 public:
     explicit GitHubAssetManager(QString asset_name, QString executable_name, QString install_directory, GitHubProject project, QWidget *parent);
+    virtual ~GitHubAssetManager();
 
     virtual void request_asset_ids() override;
 

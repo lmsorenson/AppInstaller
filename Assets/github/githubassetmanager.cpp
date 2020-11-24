@@ -25,6 +25,11 @@ GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_na
     QObject::connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received);
 }
 
+GitHubAssetManager::~GitHubAssetManager() noexcept
+{
+    QObject::disconnect(&network_, &QNetworkAccessManager::finished, nullptr, nullptr);
+}
+
 QString GitHubAssetManager::generate_installation_name(QString tag)
 {
     return (github_required_asset_name_ + tag);
@@ -34,7 +39,10 @@ void GitHubAssetManager::request_asset_ids()
 {
     QNetworkRequest request(QUrl("https://api.github.com/repos/" + github_username_ + "/" + github_project_ + "/releases"));
     request.setRawHeader("Authorization", QString("token " + github_token_).toStdString().c_str());
+
     network_.get(request);
+
+    qDebug() << "ASSET MANAGER: asset request succeeded.";
 }
 
 void GitHubAssetManager::on_assets_received(QNetworkReply *reply)
