@@ -13,6 +13,7 @@ addons:
       - qt
     update: true
 before_script:
+  - brew upgrade qt
   - mkdir build
   - ls -la
   - cd build
