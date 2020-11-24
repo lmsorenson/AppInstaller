@@ -42,7 +42,10 @@ int main(int argc, char *argv[])
     }
 
     qDebug() << "Setup complete: launching installer.";
-    return a.exec();
+
+    auto result = a.exec();
+
+    return result;
 }
 
 void LoadProject(GitHubProject &project, QString &install_directory)
