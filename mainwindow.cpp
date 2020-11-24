@@ -45,6 +45,7 @@ void MainWindow::provide_assets(QStringList asset_ids)
 
     for (auto item : asset_ids)
     {
+        qDebug() << "MAIN WINDOW: adding asset " << item;
         list << item;
     }
 
@@ -56,6 +57,8 @@ void MainWindow::provide_assets(QStringList asset_ids)
 
     if (ui->listView->selectionModel() != nullptr)
         connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(on_selection_changed(QItemSelection)));
+
+    qDebug() << "Finished processing found assets."
 }
 
 void MainWindow::on_selection_changed(const QItemSelection& selection)
