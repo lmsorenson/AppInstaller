@@ -24,7 +24,7 @@ GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_na
 , active_download_(nullptr)
 , active_archive_(nullptr)
 {
-    QObject::connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received, Qt::BlockingQueuedConnection);
+//    QObject::connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received, Qt::BlockingQueuedConnection);
 }
 
 GitHubAssetManager::~GitHubAssetManager() noexcept
