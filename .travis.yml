@@ -24,7 +24,7 @@ script:
     -DLibArchive_INCLUDE_DIR=$(brew --prefix libarchive)/include \
     -DLibArchive_LIBRARIES=$(brew --prefix libarchive)/lib \
     ..
-    printenv
+    echo "ENV" + ${RELEASE_INSTALLER_VERSION}
   - make
   - cpack -G DragNDrop
 before_deploy:
