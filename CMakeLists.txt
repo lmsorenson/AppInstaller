@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ReleaseInstaller LANGUAGES CXX VERSION ${DEPLOY_VERSION})
+project(ReleaseInstaller LANGUAGES CXX VERSION $ENV{DEPLOY_VERSION})
+message("DEPLOY VERSION: $ENV{DEPLOY_VERSION}")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
