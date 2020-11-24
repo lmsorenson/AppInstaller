@@ -40,17 +40,17 @@ void MainWindow::provide_assets(QStringList asset_ids)
 {
     qDebug() << "MAIN WINDOW: Assets received.";
 
-    QStringListModel * model = new QStringListModel(this);
-    QStringList list;
-
-    for (auto item : asset_ids)
-    {
-        qDebug() << "MAIN WINDOW: adding asset " << item;
-        list << item;
-    }
-
-    list.removeDuplicates();
-    list.sort();
+//    QStringListModel * model = new QStringListModel(this);
+//    QStringList list;
+//
+//    for (auto item : asset_ids)
+//    {
+//        qDebug() << "MAIN WINDOW: adding asset " << item;
+//        list << item;
+//    }
+//
+//    list.removeDuplicates();
+//    list.sort();
 
 //    model->setStringList( list );
 //    ui->listView->setModel( model );

@@ -21,6 +21,8 @@ GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_na
 , github_project_(project.project_name)
 , github_required_asset_name_(project.asset_name)
 , github_token_(project.access_token)
+, active_download_(nullptr)
+, active_archive_(nullptr)
 {
     QObject::connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received);
 }
