@@ -52,11 +52,11 @@ void MainWindow::provide_assets(QStringList asset_ids)
     list.removeDuplicates();
     list.sort();
 
-    model->setStringList( list );
-    ui->listView->setModel( model );
-
-    if (ui->listView->selectionModel() != nullptr)
-        connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(on_selection_changed(QItemSelection)));
+//    model->setStringList( list );
+//    ui->listView->setModel( model );
+//
+//    if (ui->listView->selectionModel() != nullptr)
+//        connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(on_selection_changed(QItemSelection)));
 
     qDebug() << "Finished processing found assets.";
 }
