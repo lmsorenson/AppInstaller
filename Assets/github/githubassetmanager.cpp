@@ -78,7 +78,7 @@ void GitHubAssetManager::on_assets_received(QNetworkReply *reply)
         delete reply;
 
         qDebug() << "ASSET MANAGER: emitting found assets.";
-//        emit provide_asset_ids(list);
+        emit provide_asset_ids(list);
     }
     else
     {
