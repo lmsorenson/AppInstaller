@@ -58,7 +58,7 @@ void MainWindow::provide_assets(QStringList asset_ids)
     if (ui->listView->selectionModel() != nullptr)
         connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(on_selection_changed(QItemSelection)));
 
-    qDebug() << "Finished processing found assets."
+    qDebug() << "Finished processing found assets.";
 }
 
 void MainWindow::on_selection_changed(const QItemSelection& selection)
