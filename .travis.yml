@@ -24,12 +24,12 @@ script:
   - |
     cmake\
     -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 \
-    -DDEPLOY_VERSION=${DEPLOY_VERSION} \
+    -DDEPLOY_VERSION="${DEPLOY_VERSION}" \
     -DLibArchive_INCLUDE_DIR=$(brew --prefix libarchive)/include \
     -DLibArchive_LIBRARIES=$(brew --prefix libarchive)/lib \
     ..
     deploy_version=${DEPLOY_VERSION}
-    echo ${deploy_version}
+    echo "${deploy_version}"
     export DEPLOY_TAG="v${deploy_version}-alpha"
     export DEPLOY_FILE_NAME="ReleaseInstaller-${deploy_version}-Darwin.dmg"
     export DEPLOY_NAME="Release Installer ${deploy_version}"
