@@ -22,7 +22,7 @@ before_script:
   - cd build
 script:
   - |
-    cmake\
+    cmake \
     -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 \
     -DLibArchive_INCLUDE_DIR=$(brew --prefix libarchive)/include \
     -DLibArchive_LIBRARIES=$(brew --prefix libarchive)/lib \
