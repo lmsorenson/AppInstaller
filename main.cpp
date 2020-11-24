@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
         QObject::connect(&w, &MainWindow::validate_actions, asset_manager, &GitHubAssetManager::check_for_install);
         QObject::connect(asset_manager, &AssetManagerBase::on_install_validated, &w, &MainWindow::on_selected_install_exists);
 
-
         asset_manager->request_asset_ids();
     }
     catch (std::exception ex)
@@ -42,7 +41,7 @@ int main(int argc, char *argv[])
         qDebug() << "Failed to setup asset manager";
     }
 
-
+    qDebug() << "Setup complete: launching installer.";
     return a.exec();
 }
 
