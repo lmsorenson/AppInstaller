@@ -32,7 +32,10 @@ script:
   - export DEPLOY_NAME="Release Installer ${DEPLOY_VERSION}"
   - make
   - cpack -G DragNDrop
-  - zip -r ReleaseInstaller.zip ReleaseInstaller.app
+  - mkdir drop
+  - hdiutil attach ReleaseInstaller-0.1.1-Darwin.dmg
+  - cp -a /Volumes/ReleaseInstaller-0.1.1-Darwin/ReleaseInstaller.app ./drop/ReleaseInstaller.app
+  - zip -r ReleaseInstaller.zip ./drop/ReleaseInstaller.app
 before_deploy:
   - git config --local user.name "lmsorenson"
   - git config --local user.email "lsorenson20@gmail.com"
