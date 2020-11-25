@@ -45,7 +45,7 @@ deploy:
   file:
     - ${DEPLOY_FILE_NAME}
     - "ReleaseInstaller.app"
-  cleanup: false
+  skip_cleanup: true
   name: ${DEPLOY_NAME}
   body: "First try"
   tag_name: ${DEPLOY_TAG}
