@@ -32,10 +32,10 @@ script:
   - export DEPLOY_FILE_NAME="ReleaseInstaller-${DEPLOY_VERSION}-Darwin.dmg"
   - export DEPLOY_NAME="Release Installer ${DEPLOY_VERSION}"
   - printenv
-  -
   - make
   - cpack -G DragNDrop
   - cpack -G Bundle
+  - ls -la
 before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "lmsorenson"
