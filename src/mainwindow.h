@@ -25,6 +25,8 @@ private slots:
     void on_selection_changed(const QItemSelection& selection);
     void on_install();
     void on_use();
+    void to_self_update_screen();
+    void to_install_screen();
 
 signals:
     void install(QString asset_id);

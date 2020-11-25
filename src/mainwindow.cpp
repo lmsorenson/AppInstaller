@@ -29,6 +29,8 @@ MainWindow::MainWindow(QString project_name, QString install_directory, QString 
 
     connect(ui->install, &QPushButton::released, this, &MainWindow::on_install);
     connect(ui->use, &QPushButton::released, this, &MainWindow::on_use);
+    connect(ui->toolButton, &QPushButton::released, this, &MainWindow::to_self_update_screen);
+    connect(ui->ReturnButton, &QPushButton::released, this, &MainWindow::to_install_screen);
 }
 
 MainWindow::~MainWindow()
@@ -117,3 +119,14 @@ void MainWindow::on_use()
         emit use(data);
     }
 }
+
+void MainWindow::to_install_screen()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::to_self_update_screen()
+{
+    ui->stackedWidget->setCurrentIndex(1);
+}
+
