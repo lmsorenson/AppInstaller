@@ -33,7 +33,7 @@ script:
   - make
   - cpack -G DragNDrop
   - mkdir drop
-  - hdiutil attach ReleaseInstaller-0.1.1-Darwin.dmg
+  - hdiutil attach "${DEPLOY_FILE_NAME}"
   - cp -a /Volumes/ReleaseInstaller-0.1.1-Darwin/ReleaseInstaller.app ./drop/ReleaseInstaller.app
   - zip -r ReleaseInstaller.zip ./drop/ReleaseInstaller.app
 before_deploy:
