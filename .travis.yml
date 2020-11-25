@@ -39,7 +39,7 @@ script:
   - |
     hdiutil attach "${DEPLOY_FILE_NAME}"
     cp -a "/Volumes/ReleaseInstaller-${DEPLOY_VERSION}-Darwin/ReleaseInstaller.app" ReleaseInstaller.app
-    hdiutil detach "${DEPLOY_FILE_NAME}"
+    hdiutil detach "/Volumes/ReleaseInstaller-${DEPLOY_VERSION}-Darwin/ReleaseInstaller.app"
   - zip -r ReleaseInstaller.zip ReleaseInstaller.app
 before_deploy:
   - git config --local user.name "lmsorenson"
