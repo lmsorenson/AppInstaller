@@ -18,7 +18,6 @@ addons:
 before_script:
   - brew upgrade qt
   - mkdir build
-  - ls -la
   - cd build
 script:
   - |
@@ -31,12 +30,10 @@ script:
   - export DEPLOY_TAG="v${DEPLOY_VERSION}-alpha"
   - export DEPLOY_FILE_NAME="ReleaseInstaller-${DEPLOY_VERSION}-Darwin.dmg"
   - export DEPLOY_NAME="Release Installer ${DEPLOY_VERSION}"
-  - printenv
   - make
   - cpack -G DragNDrop
-  - ls -la
+  - zip -r ReleaseInstaller.zip ReleaseInstaller.app
 before_deploy:
-  # Set up git user name and tag this commit
   - git config --local user.name "lmsorenson"
   - git config --local user.email "lsorenson20@gmail.com"
 deploy:
@@ -44,7 +41,7 @@ deploy:
   api_key: ${GITHUB_TOKEN}
   file:
     - ${DEPLOY_FILE_NAME}
-    - "ReleaseInstaller.app"
+    - "ReleaseInstaller.zip"
   skip_cleanup: true
   name: ${DEPLOY_NAME}
   body: "First try"
