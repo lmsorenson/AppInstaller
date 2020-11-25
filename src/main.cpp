@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include <QObject>
-#include <Assets/github/githubassetmanager.h>
+#include <src/Assets/github/githubassetmanager.h>
 #include <exception>
 
 void LoadProject(GitHubProject &project, QString &install_directory);

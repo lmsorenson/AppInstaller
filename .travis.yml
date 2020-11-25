@@ -32,6 +32,7 @@ script:
   - export DEPLOY_FILE_NAME="ReleaseInstaller-${DEPLOY_VERSION}-Darwin.dmg"
   - export DEPLOY_NAME="Release Installer ${DEPLOY_VERSION}"
   - printenv
+  -
   - make
   - cpack -G DragNDrop
   - cpack -G Bundle
@@ -39,12 +40,12 @@ before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "lmsorenson"
   - git config --local user.email "lsorenson20@gmail.com"
-#  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-#  - git tag $TRAVIS_TAG
 deploy:
   provider: releases
   api_key: ${GITHUB_TOKEN}
-  file: ${DEPLOY_FILE_NAME}
+  file:
+    - ${DEPLOY_FILE_NAME}
+    - "ReleaseInstaller.app"
   cleanup: false
   name: ${DEPLOY_NAME}
   body: "First try"

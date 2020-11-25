@@ -78,6 +78,8 @@ set(prefix "${PROJECT_NAME}.app/Contents")
 set(INSTALL_RUNTIME_DIR "${prefix}/MacOS")
 set(INSTALL_CMAKE_DIR "${prefix}/Resources")
 
+set(CPACK_BUNDLE_NAME "ReleaseInstaller")
+
 macro(install_qt5_plugin _qt_plugin_name _qt_plugins_var _prefix)
   get_target_property(_qt_plugin_path "${_qt_plugin_name}" LOCATION)
   message("checking if plugin path exists")
