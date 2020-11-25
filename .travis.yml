@@ -34,7 +34,6 @@ script:
   - printenv
   - make
   - cpack -G DragNDrop
-  - cpack -G Bundle
   - ls -la
 before_deploy:
   # Set up git user name and tag this commit
