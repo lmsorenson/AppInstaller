@@ -33,9 +33,11 @@ script:
   - make
   - cpack -G DragNDrop
   - mkdir drop
+  - cp -a "${DEPLOY_FILE_NAME}" ./drop/"${DEPLOY_FILE_NAME}"
+  - cd ./drop
   - hdiutil attach "${DEPLOY_FILE_NAME}"
-  - cp -a "/Volumes/ReleaseInstaller-${DEPLOY_VERSION}-Darwin/ReleaseInstaller.app" ./drop/ReleaseInstaller.app
-  - zip -r ReleaseInstaller.zip ./drop/ReleaseInstaller.app
+  - cp -a "/Volumes/ReleaseInstaller-${DEPLOY_VERSION}-Darwin/ReleaseInstaller.app" ReleaseInstaller.app
+  - zip -r ReleaseInstaller.zip ReleaseInstaller.app
 before_deploy:
   - git config --local user.name "lmsorenson"
   - git config --local user.email "lsorenson20@gmail.com"
