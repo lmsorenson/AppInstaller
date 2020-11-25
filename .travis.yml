@@ -49,4 +49,4 @@ deploy:
   name: ${DEPLOY_NAME}
   body: "First try"
   tag_name: ${DEPLOY_TAG}
-  prerelease: true
+  prerelease: false
