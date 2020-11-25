@@ -15,7 +15,7 @@ class GitHubAssetManager : public AssetManagerBase
 {
     Q_OBJECT
 public:
-    explicit GitHubAssetManager(QString asset_name, QString executable_name, QString install_directory, GitHubProject project, QWidget *parent);
+    explicit GitHubAssetManager(QString asset_name, QString executable_name, QString install_directory, GitHubProject project, class MainWindow *parent);
     virtual ~GitHubAssetManager();
 
     virtual void request_asset_ids() override;
@@ -31,10 +31,6 @@ public:
 
 private slots:
     void on_assets_received(QNetworkReply *reply);
-
-signals:
-    void provide_asset_ids(QStringList string_list);
-
 
 private:
     // installed asset names.

@@ -4,39 +4,41 @@
 #include <src/Assets/github/githubassetmanager.h>
 #include <exception>
 
-void LoadProject(GitHubProject &project, QString &install_directory);
+void LoadProject(QString name, GitHubProject &project, QString &install_directory);
 
-static GitHubAssetManager * asset_manager = nullptr;
+template<class Manager, class Window>
+void SetupManager(Manager * manager, Window * window);
+
+GitHubAssetManager * self_update_manager = nullptr;
+GitHubAssetManager * project_manager = nullptr;
 
 int main(int argc, char *argv[])
 {
 
-    GitHubProject project;
-    QString install_directory;
+    GitHubProject project, self;
+    QString project_install_directory, self_install_directory;
 
-    LoadProject(project, install_directory);
+    LoadProject("project", project, project_install_directory);
+    LoadProject("self", self, self_install_directory);
 
     QApplication a(argc, argv);
-    MainWindow w(project.project_name, install_directory, project.asset_name + ".zip");
+    MainWindow w(project.project_name, project_install_directory, project.asset_name + ".zip");
     w.show();
 
-    asset_manager = new GitHubAssetManager("AgCabLab", "AgCab.app", install_directory, project, &w);
+    project_manager = new GitHubAssetManager("AgCabLab", "AgCab.app", project_install_directory, project, &w);
+    self_update_manager = new GitHubAssetManager("Installer", "ReleaseInstaller.app", self_install_directory, self, &w);
+
+    SetupManager(project_manager, &w);
 
     try
     {
-        if (!asset_manager)
+        if (!project_manager)
         {
             qDebug() << "Asset manager is null.";
             return -1;
         }
 
-        QObject::connect(asset_manager, &GitHubAssetManager::provide_asset_ids, &w, &MainWindow::provide_assets);
-        QObject::connect(&w, &MainWindow::install, asset_manager, &GitHubAssetManager::on_install_asset);
-        QObject::connect(&w, &MainWindow::use, asset_manager, &GitHubAssetManager::on_use_asset);
-        QObject::connect(&w, &MainWindow::validate_actions, asset_manager, &GitHubAssetManager::check_for_install);
-        QObject::connect(asset_manager, &AssetManagerBase::on_install_validated, &w, &MainWindow::on_selected_install_exists);
-
-        asset_manager->request_asset_ids();
+        project_manager->request_asset_ids();
     }
     catch (std::exception ex)
     {
@@ -50,7 +52,7 @@ int main(int argc, char *argv[])
     return result;
 }
 
-void LoadProject(GitHubProject &project, QString &install_directory)
+void LoadProject(QString name, GitHubProject &project, QString &install_directory)
 {
     QString val;
     QFile file;
@@ -61,14 +63,35 @@ void LoadProject(GitHubProject &project, QString &install_directory)
 
     QJsonDocument document = QJsonDocument::fromJson(val.toUtf8());
 
-    if(document.isObject())
-    {
-        auto object = document.object();
+    if(!document.isObject())
+        return;
 
-        project.user_name = object["gh_user_name"].toString();
-        project.project_name = object["gh_project_name"].toString();
-        project.asset_name = object["gh_asset_name"].toString();
-        project.access_token = object["gh_access_token"].toString();
-        install_directory = object["install_directory"].toString();
-    }
+    auto object = document.object();
+
+    auto project_json = object[name];
+    if (!project_json.isObject())
+        return;
+
+    auto project_object = project_json.toObject();
+
+    project.user_name = project_object["gh_user_name"].toString();
+    project.project_name = project_object["gh_project_name"].toString();
+    project.asset_name = project_object["gh_asset_name"].toString();
+    project.access_token = project_object["gh_deploy_key"].toString();
+    install_directory = project_object["install_directory"].toString();
+}
+
+template<class Manager, class Window>
+void SetupManager(Manager * manager, Window * window)
+{
+    // populate ui
+    QObject::connect(project_manager, &Manager::provide_asset_ids, window, &Window::provide_assets);
+
+    // handle ui commands
+    QObject::connect(window, &Window::install, project_manager, &Manager::on_install_asset);
+    QObject::connect(window, &Window::use, project_manager, &Manager::on_use_asset);
+
+    // request to validate buttons
+    QObject::connect(window, &Window::validate_actions, project_manager, &Manager::check_for_install);
+    QObject::connect(project_manager, &Manager::on_install_validated, window, &Window::on_selected_install_exists);
 }

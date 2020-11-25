@@ -10,10 +10,11 @@
 
 #include <unistd.h>
 
+#include <src/mainwindow.h>
 #include <src/Assets/download.h>
 #include <src/Archives/zippackage.h>
 
-GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_name, QString install_directory, GitHubProject project, QWidget *parent)
+GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_name, QString install_directory, GitHubProject project, MainWindow *parent)
 : AssetManagerBase(install_directory + ((install_directory.endsWith("/")) ? "" : "/"), parent)
 , asset_name_(asset_name)
 , executable_name_(executable_name)
@@ -24,7 +25,7 @@ GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_na
 , active_download_(nullptr)
 , active_archive_(nullptr)
 {
-    QObject::connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received, Qt::QueuedConnection);
+    connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received, Qt::QueuedConnection);
 }
 
 GitHubAssetManager::~GitHubAssetManager() noexcept

@@ -11,7 +11,7 @@ class AssetManagerBase : public QObject
     Q_OBJECT
 
 public:
-    explicit AssetManagerBase(QString install_directory, QWidget *parent);
+    explicit AssetManagerBase(QString install_directory, class MainWindow *parent);
     virtual ~AssetManagerBase();
 
     virtual void request_asset_ids() = 0;
@@ -31,6 +31,7 @@ protected slots:
     virtual void unzip_cleanup(int result_index);
 
 signals:
+    void provide_asset_ids(QStringList string_list);
     void on_install_validated(bool is_installed);
     void on_install_complete(QString directory_name);
     void close_dialog();
