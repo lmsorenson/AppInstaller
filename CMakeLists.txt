@@ -33,39 +33,39 @@ find_package(CURL REQUIRED)
 
 if(ANDROID)
   add_library(ReleaseInstaller SHARED
-    main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
-    Assets/assetmanagerbase.cpp
-    Assets/assetmanagerbase.h
-    Assets/github/githubassetmanager.cpp
-    Assets/github/githubassetmanager.h
-    Assets/download.h
-    Assets/download.cpp
-    Assets/progressdialog.cpp
-    Assets/progressdialog.h
-    Assets/progressdialog.ui
-    Archives/zippackage.cpp
-    Archives/zippackage.h
+    src/main.cpp
+    src/mainwindow.cpp
+    src/mainwindow.h
+    src/mainwindow.ui
+    src/Assets/assetmanagerbase.cpp
+    src/Assets/assetmanagerbase.h
+    src/Assets/github/githubassetmanager.cpp
+    src/Assets/github/githubassetmanager.h
+    src/Assets/download.h
+    src/Assets/download.cpp
+    src/Assets/progressdialog.cpp
+    src/Assets/progressdialog.h
+    src/Assets/progressdialog.ui
+    src/Archives/zippackage.cpp
+    src/Archives/zippackage.h
   )
 else()
   add_executable(ReleaseInstaller MACOSX_BUNDLE
-    main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
-    Assets/assetmanagerbase.cpp
-    Assets/assetmanagerbase.h
-    Assets/github/githubassetmanager.cpp
-    Assets/github/githubassetmanager.h
-    Assets/download.h
-    Assets/download.cpp
-    Assets/progressdialog.cpp
-    Assets/progressdialog.h
-    Assets/progressdialog.ui
-    Archives/zippackage.cpp
-    Archives/zippackage.h
+    src/main.cpp
+    src/mainwindow.cpp
+    src/mainwindow.h
+    src/mainwindow.ui
+    src/Assets/assetmanagerbase.cpp
+    src/Assets/assetmanagerbase.h
+    src/Assets/github/githubassetmanager.cpp
+    src/Assets/github/githubassetmanager.h
+    src/Assets/download.h
+    src/Assets/download.cpp
+    src/Assets/progressdialog.cpp
+    src/Assets/progressdialog.h
+    src/Assets/progressdialog.ui
+    src/Archives/zippackage.cpp
+    src/Archives/zippackage.h
   )
 endif()
 
@@ -77,6 +77,8 @@ target_link_libraries(ReleaseInstaller PRIVATE Qt5::Widgets Qt5::Network Qt5::Co
 set(prefix "${PROJECT_NAME}.app/Contents")
 set(INSTALL_RUNTIME_DIR "${prefix}/MacOS")
 set(INSTALL_CMAKE_DIR "${prefix}/Resources")
+
+set(CPACK_BUNDLE_NAME "ReleaseInstaller")
 
 macro(install_qt5_plugin _qt_plugin_name _qt_plugins_var _prefix)
   get_target_property(_qt_plugin_path "${_qt_plugin_name}" LOCATION)

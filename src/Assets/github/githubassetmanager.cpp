@@ -10,8 +10,8 @@
 
 #include <unistd.h>
 
-#include <Assets/download.h>
-#include <Archives/zippackage.h>
+#include <src/Assets/download.h>
+#include <src/Archives/zippackage.h>
 
 GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_name, QString install_directory, GitHubProject project, QWidget *parent)
 : AssetManagerBase(install_directory + ((install_directory.endsWith("/")) ? "" : "/"), parent)
