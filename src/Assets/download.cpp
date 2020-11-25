@@ -8,8 +8,7 @@
 #include <QtConcurrent>
 #include <QDebug>
 
-#include "Assets/download.h"
-#include "Assets/progressdialog.h"
+#include "src/Assets/download.h"
 
 
 

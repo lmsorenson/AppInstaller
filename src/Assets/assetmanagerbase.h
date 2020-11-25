@@ -4,7 +4,7 @@
 #include <QFuture>
 #include <QNetworkReply>
 #include <QFutureWatcher>
-#include <Assets/progressdialog.h>
+#include <src/Assets/progressdialog.h>
 
 class AssetManagerBase : public QObject
 {
