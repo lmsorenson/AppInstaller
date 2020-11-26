@@ -15,9 +15,10 @@ MainWindow::MainWindow(QString project_name, QString install_directory, QString 
 {
     ui->setupUi(this);
 
+    interface_ = new PackageInterface();
+    interface_->set_view(ui->listView);
+
     this->setWindowTitle(title_);
-    ui->listView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
-    ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     ui->InstallDirectoryDisplay->setText(install_directory);
     ui->AssetNameDisplay->setText(asset_name);
@@ -27,8 +28,12 @@ MainWindow::MainWindow(QString project_name, QString install_directory, QString 
     ui->use->setDisabled(true);
     ui->remove->setDisabled(true);
 
-    connect(ui->install, &QPushButton::released, this, &MainWindow::on_install);
-    connect(ui->use, &QPushButton::released, this, &MainWindow::on_use);
+    if (interface_)
+    {
+        connect(ui->install, &QPushButton::released, interface_, &PackageInterface::on_install);
+        connect(ui->use, &QPushButton::released, interface_, &PackageInterface::on_use);
+    }
+
     connect(ui->toolButton, &QPushButton::released, this, &MainWindow::to_self_update_screen);
     connect(ui->ReturnButton, &QPushButton::released, this, &MainWindow::to_install_screen);
 }
@@ -38,44 +43,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::provide_assets(QStringList asset_ids)
+const PackageInterface * const MainWindow::get_interface()
 {
-    qDebug() << "MAIN WINDOW: Assets received.";
-
-    QStringListModel * model = new QStringListModel(this);
-    QStringList list;
-
-    for (auto item : asset_ids)
-    {
-        qDebug() << "MAIN WINDOW: adding asset " << item;
-        list << item;
-    }
-
-    list.removeDuplicates();
-    list.sort();
-
-    model->setStringList( list );
-    ui->listView->setModel( model );
-
-    if (ui->listView->selectionModel() != nullptr)
-        connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(on_selection_changed(QItemSelection)));
-
-    qDebug() << "Finished processing found assets.";
-}
-
-void MainWindow::on_selection_changed(const QItemSelection& selection)
-{
-    if (selection.indexes().size() == 1)
-    {
-        auto model_index = selection.indexes().takeFirst();
-        if (model_index.isValid())
-        {
-            auto data = model_index.data().value<QString>();
-            qDebug() << "Selection changed to: " << data;
-
-            emit validate_actions(data);
-        }
-    }
+    return interface_;
 }
 
 void MainWindow::on_selected_install_exists(bool install_exists)
@@ -89,34 +59,6 @@ void MainWindow::on_selected_install_exists(bool install_exists)
     {
         ui->install->setDisabled(false);
         ui->use->setDisabled(true);
-    }
-}
-
-void MainWindow::on_install()
-{
-    auto selectedIndex = ui->listView->currentIndex();
-
-    if (selectedIndex.isValid())
-    {
-        auto data = selectedIndex.data().value<QString>();
-
-        qDebug() << "Attempting to install: " << data;
-
-        emit install(data);
-    }
-}
-
-void MainWindow::on_use()
-{
-    auto selectedIndex = ui->listView->currentIndex();
-
-    if (selectedIndex.isValid())
-    {
-        auto data = selectedIndex.data().value<QString>();
-
-        qDebug() << "Attempting to setup: " << data;
-
-        emit use(data);
     }
 }
 

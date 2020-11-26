@@ -46,6 +46,8 @@ if(ANDROID)
     src/Assets/progressdialog.cpp
     src/Assets/progressdialog.h
     src/Assets/progressdialog.ui
+    src/Assets/package.cpp
+    src/Assets/Package.h
     src/Archives/zippackage.cpp
     src/Archives/zippackage.h
   )
@@ -64,6 +66,8 @@ else()
     src/Assets/progressdialog.cpp
     src/Assets/progressdialog.h
     src/Assets/progressdialog.ui
+    src/Assets/package.cpp
+    src/Assets/package.h
     src/Archives/zippackage.cpp
     src/Archives/zippackage.h
   )

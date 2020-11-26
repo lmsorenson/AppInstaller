@@ -4,6 +4,7 @@
 #include <QNetworkAccessManager>
 #include <QList>
 #include <QtConcurrent>
+#include <src/Assets/package.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,24 +18,18 @@ public:
     MainWindow(QString project_name, QString install_directory, QString asset_name, QWidget *parent = nullptr);
     ~MainWindow();
 
+    const PackageInterface * const get_interface();
+
 public slots:
-    void provide_assets(QStringList asset_ids);
     void on_selected_install_exists(bool install_exists);
 
 private slots:
-    void on_selection_changed(const QItemSelection& selection);
-    void on_install();
-    void on_use();
     void to_self_update_screen();
     void to_install_screen();
-
-signals:
-    void install(QString asset_id);
-    void use(QString tag);
-    void validate_actions(QString asset_id);
 
 private:
     Ui::MainWindow *ui;
 
+    PackageInterface *interface_;
     QString title_;
 };

@@ -2,33 +2,38 @@
 #include <QApplication>
 #include <QObject>
 #include <src/Assets/github/githubassetmanager.h>
+#include <src/Assets/package.h>
 #include <exception>
 
-void LoadProject(QString name, GitHubProject &project, QString &install_directory);
+int LoadProject(QString name, GitHubProject &project, QString &install_directory);
 
-template<class Manager, class Window>
-void SetupManager(Manager * manager, Window * window);
+template<class Manager, class Interface>
+void SetupManager(Manager * manager, Interface * package);
 
 GitHubAssetManager * self_update_manager = nullptr;
 GitHubAssetManager * project_manager = nullptr;
 
 int main(int argc, char *argv[])
 {
-
     GitHubProject project, self;
     QString project_install_directory, self_install_directory;
 
-    LoadProject("project", project, project_install_directory);
-    LoadProject("self", self, self_install_directory);
+    if (LoadProject("project", project, project_install_directory) != 0)
+        return 1;
+
+    bool self_update_enabled = (LoadProject("self", self, self_install_directory) == 0 );
 
     QApplication a(argc, argv);
     MainWindow w(project.project_name, project_install_directory, project.asset_name + ".zip");
     w.show();
 
+    self_update_manager = (self_update_enabled)
+            ? new GitHubAssetManager("Installer", "ReleaseInstaller.app", self_install_directory, self, &w) : nullptr;
     project_manager = new GitHubAssetManager("AgCabLab", "AgCab.app", project_install_directory, project, &w);
-    self_update_manager = new GitHubAssetManager("Installer", "ReleaseInstaller.app", self_install_directory, self, &w);
 
-    SetupManager(project_manager, &w);
+
+    SetupManager(project_manager, w.get_interface());
+    QObject::connect(project_manager, &GitHubAssetManager::on_install_validated, &w, &MainWindow::on_selected_install_exists);
 
     try
     {
@@ -52,7 +57,7 @@ int main(int argc, char *argv[])
     return result;
 }
 
-void LoadProject(QString name, GitHubProject &project, QString &install_directory)
+int LoadProject(QString name, GitHubProject &project, QString &install_directory)
 {
     QString val;
     QFile file;
@@ -64,13 +69,13 @@ void LoadProject(QString name, GitHubProject &project, QString &install_director
     QJsonDocument document = QJsonDocument::fromJson(val.toUtf8());
 
     if(!document.isObject())
-        return;
+        return -1;
 
     auto object = document.object();
 
     auto project_json = object[name];
     if (!project_json.isObject())
-        return;
+        return -1;
 
     auto project_object = project_json.toObject();
 
@@ -79,19 +84,20 @@ void LoadProject(QString name, GitHubProject &project, QString &install_director
     project.asset_name = project_object["gh_asset_name"].toString();
     project.access_token = project_object["gh_deploy_key"].toString();
     install_directory = project_object["install_directory"].toString();
+
+    return 0;
 }
 
-template<class Manager, class Window>
-void SetupManager(Manager * manager, Window * window)
+template<class Manager, class Interface>
+void SetupManager(Manager * manager, Interface * package)
 {
     // populate ui
-    QObject::connect(project_manager, &Manager::provide_asset_ids, window, &Window::provide_assets);
+    QObject::connect(project_manager, &Manager::provide_asset_ids, package, &Interface::provide_assets);
 
     // handle ui commands
-    QObject::connect(window, &Window::install, project_manager, &Manager::on_install_asset);
-    QObject::connect(window, &Window::use, project_manager, &Manager::on_use_asset);
+    QObject::connect(package, &Interface::install, project_manager, &Manager::on_install_asset);
+    QObject::connect(package, &Interface::use, project_manager, &Manager::on_use_asset);
 
     // request to validate buttons
-    QObject::connect(window, &Window::validate_actions, project_manager, &Manager::check_for_install);
-    QObject::connect(project_manager, &Manager::on_install_validated, window, &Window::on_selected_install_exists);
+    QObject::connect(package, &Interface::validate_actions, project_manager, &Manager::check_for_install);
 }
