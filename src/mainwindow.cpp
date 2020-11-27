@@ -18,8 +18,10 @@ MainWindow::MainWindow(QString project_name, QString install_directory, QString 
     interface_ = new PackageInterface();
     interface_->set_view(ui->listView);
 
-    this->setWindowTitle(title_);
+    self_ = new PackageInterface();
+    self_->set_view(ui->SelfUpdateListView);
 
+    this->setWindowTitle(title_);
     ui->InstallDirectoryDisplay->setText(install_directory);
     ui->AssetNameDisplay->setText(asset_name);
 
@@ -34,8 +36,15 @@ MainWindow::MainWindow(QString project_name, QString install_directory, QString 
         connect(ui->use, &QPushButton::released, interface_, &PackageInterface::on_use);
     }
 
+    if (self_)
+    {
+        connect(ui->SelectVersion, &QPushButton::released, self_, &PackageInterface::on_install);
+        connect(ui->UseSelectedInstallerVersion, &QPushButton::released, interface_, &PackageInterface::on_use);
+    }
+
     connect(ui->toolButton, &QPushButton::released, this, &MainWindow::to_self_update_screen);
     connect(ui->ReturnButton, &QPushButton::released, this, &MainWindow::to_install_screen);
+
 }
 
 MainWindow::~MainWindow()
@@ -46,6 +55,11 @@ MainWindow::~MainWindow()
 const PackageInterface * const MainWindow::get_interface()
 {
     return interface_;
+}
+
+const PackageInterface * const MainWindow::get_self_interface()
+{
+    return self_;
 }
 
 void MainWindow::on_selected_install_exists(bool install_exists)

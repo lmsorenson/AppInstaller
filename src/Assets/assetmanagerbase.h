@@ -33,7 +33,6 @@ protected slots:
 signals:
     void provide_asset_ids(QStringList string_list);
     void on_install_validated(bool is_installed);
-    void on_install_complete(QString directory_name);
     void close_dialog();
 
 protected:

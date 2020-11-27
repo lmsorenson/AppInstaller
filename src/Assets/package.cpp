@@ -43,7 +43,10 @@ void PackageInterface::provide_assets(QStringList asset_ids)
     QStringList list;
 
     for (auto item : asset_ids)
+    {
+        qDebug() << "PACKAGE INTERFACE: '" << item << "' item.";
         list << item;
+    }
 
     list.removeDuplicates();
     list.sort();

@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="projectupdate">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -148,11 +148,22 @@
          <widget class="QListView" name="SelfUpdateListView"/>
         </item>
         <item>
-         <widget class="QPushButton" name="SelectVersion">
-          <property name="text">
-           <string>Select Version</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="SelectVersion">
+            <property name="text">
+             <string>Download Version</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="UseSelectedInstallerVersion">
+            <property name="text">
+             <string>Use</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

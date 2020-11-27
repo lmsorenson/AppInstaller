@@ -19,6 +19,7 @@ public:
     ~MainWindow();
 
     const PackageInterface * const get_interface();
+    const PackageInterface * const get_self_interface();
 
 public slots:
     void on_selected_install_exists(bool install_exists);
@@ -31,5 +32,6 @@ private:
     Ui::MainWindow *ui;
 
     PackageInterface *interface_;
+    PackageInterface *self_;
     QString title_;
 };

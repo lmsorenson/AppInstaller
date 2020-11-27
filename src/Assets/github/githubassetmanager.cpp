@@ -1,10 +1,6 @@
 #include "githubassetmanager.h"
 #include <QNetworkAccessManager>
-#include <QtConcurrent>
 #include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QDebug>
 #include <QTimer>
 #include <QFile>
 
@@ -28,7 +24,7 @@ GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_na
     connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received, Qt::QueuedConnection);
 }
 
-GitHubAssetManager::~GitHubAssetManager() noexcept
+GitHubAssetManager::~GitHubAssetManager()
 {
     QObject::disconnect(&network_, &QNetworkAccessManager::finished, nullptr, nullptr);
 }
@@ -40,12 +36,11 @@ QString GitHubAssetManager::generate_installation_name(QString tag)
 
 void GitHubAssetManager::request_asset_ids()
 {
+    qDebug() << "ASSET MANAGER: " << github_username_ << " | " << github_project_;
     QNetworkRequest request(QUrl("https://api.github.com/repos/" + github_username_ + "/" + github_project_ + "/releases"));
     request.setRawHeader("Authorization", QString("token " + github_token_).toStdString().c_str());
 
     network_.get(request);
-
-    qDebug() << "ASSET MANAGER: asset request succeeded.";
 }
 
 void GitHubAssetManager::on_assets_received(QNetworkReply *reply)
@@ -53,22 +48,28 @@ void GitHubAssetManager::on_assets_received(QNetworkReply *reply)
     QStringList list;
     request_map_.clear();
 
-    if (reply->error() == QNetworkReply::NoError) {
+    if (reply->error() == QNetworkReply::NoError)
+    {
         QString reply_string = (QString) reply->readAll();
 
         //parse json
         QJsonDocument jsonResponse = QJsonDocument::fromJson(reply_string.toUtf8());
 
-        if (jsonResponse.isArray()) {
+        if (jsonResponse.isArray())
+        {
             auto array = jsonResponse.array();
 
-            for (auto itr = array.begin(); itr != array.end(); itr++) {
+            for (auto itr = array.begin(); itr != array.end(); itr++)
+            {
                 auto item = itr->toObject();
 
                 auto assets = item["assets"].toArray();
-                for (auto it = assets.begin(); it != assets.end(); it++) {
+                for (auto it = assets.begin(); it != assets.end(); it++)
+                {
                     auto asset = it->toObject();
-                    if (asset["name"] == (github_required_asset_name_ + ".zip")) {
+                    if (asset["name"] == (github_required_asset_name_ + ".zip"))
+                    {
+                        qDebug() << "ASSET MANAGER: found " << item["tag_name"];
                         request_map_.insert(item["tag_name"].toString(), asset["url"].toString());
                         list << item["tag_name"].toString();
                     }
@@ -127,7 +128,6 @@ void GitHubAssetManager::unzip_cleanup(int result_index)
 
 void GitHubAssetManager::use_asset(QString directory_name)
 {
-
     auto command = QString(directory_name + "/" + executable_name_);
     qDebug() << "Use: " << command;
 
