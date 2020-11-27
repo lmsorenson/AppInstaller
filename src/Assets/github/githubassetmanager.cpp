@@ -21,7 +21,6 @@ GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_na
 , active_download_(nullptr)
 , active_archive_(nullptr)
 {
-    connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received, Qt::QueuedConnection);
 }
 
 GitHubAssetManager::~GitHubAssetManager()
@@ -36,8 +35,19 @@ QString GitHubAssetManager::generate_installation_name(QString tag)
 
 void GitHubAssetManager::request_asset_ids()
 {
-    qDebug() << "ASSET MANAGER: " << github_username_ << " | " << github_project_;
+    qDebug() << "ASSET MANAGER: Requesting assets for --> " << github_username_ << "/" << github_project_;
+    connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received, Qt::QueuedConnection);
     QNetworkRequest request(QUrl("https://api.github.com/repos/" + github_username_ + "/" + github_project_ + "/releases"));
+    request.setRawHeader("Authorization", QString("token " + github_token_).toStdString().c_str());
+
+    network_.get(request);
+}
+
+void GitHubAssetManager::check_for_updates()
+{
+    qDebug() << "ASSET MANAGER: Checking for updates to --> " << github_username_ << "/" << github_project_;
+    connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_latest_received, Qt::QueuedConnection);
+    QNetworkRequest request(QUrl("https://api.github.com/repos/" + github_username_ + "/" + github_project_ + "/releases/latest"));
     request.setRawHeader("Authorization", QString("token " + github_token_).toStdString().c_str());
 
     network_.get(request);
@@ -81,6 +91,57 @@ void GitHubAssetManager::on_assets_received(QNetworkReply *reply)
 
         qDebug() << "ASSET MANAGER: emitting found assets.";
         emit provide_asset_ids(list);
+    }
+    else
+    {
+        qDebug() << "Failure: " << reply->errorString();
+        delete reply;
+    }
+}
+
+void GitHubAssetManager::on_latest_received(QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError)
+    {
+        QString reply_string = (QString) reply->readAll();
+        QString tag_name;
+
+        //parse json
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(reply_string.toUtf8());
+
+        if (jsonResponse.isArray())
+        {
+            auto array = jsonResponse.array();
+
+            if (!array.isEmpty())
+            {
+                auto item = array.first();
+
+                auto assets = item["assets"].toArray();
+                for (auto it = assets.begin(); it != assets.end(); it++)
+                {
+                    auto asset = it->toObject();
+                    if (asset["name"] == (github_required_asset_name_ + ".zip"))
+                    {
+                        qDebug() << "ASSET MANAGER: found " << item["tag_name"];
+                        request_map_.insert(item["tag_name"].toString(), asset["url"].toString());
+                        tag_name = item["tag_name"].toString();
+                    }
+                }
+            }
+        }
+
+        delete reply;
+
+        if (tag_name.isEmpty() )
+        {
+            qDebug() << "Required assets were not found on latest release.";
+        }
+        else
+        {
+            qDebug() << "ASSET MANAGER: providing tag name for latest.";
+            emit provide_latest_id(tag_name);
+        }
     }
     else
     {

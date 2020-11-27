@@ -22,6 +22,7 @@ public:
     template<class Interface> void setup(Interface * interface);
 
     virtual void request_asset_ids() override;
+    virtual void check_for_updates() override;
 
     virtual QFuture<QString> download_asset(QString asset_id, QString url) override;
     virtual void download_cleanup() override;
@@ -34,6 +35,7 @@ public:
 
 private slots:
     void on_assets_received(QNetworkReply *reply);
+    void on_latest_received(QNetworkReply *reply);
 
 private:
     // installed asset names.

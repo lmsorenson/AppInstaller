@@ -16,6 +16,7 @@ public:
     virtual ~AssetManagerBase();
 
     virtual void request_asset_ids() = 0;
+    virtual void check_for_updates() = 0;
     virtual QFuture<QString> download_asset(QString asset_id, QString url) = 0;
     virtual QFuture<QString> unzip_asset(QString file_name) = 0;
     virtual void use_asset(QString filename) = 0;
@@ -33,6 +34,7 @@ protected slots:
 
 signals:
     void provide_asset_ids(QStringList string_list);
+    void provide_latest_id(QString tag_name);
     void on_install_validated(bool is_installed);
     void close_dialog();
 
