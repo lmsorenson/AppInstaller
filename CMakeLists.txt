@@ -34,42 +34,42 @@ find_package(CURL REQUIRED)
 if(ANDROID)
   add_library(ReleaseInstaller SHARED
     src/main.cpp
-    src/mainwindow.cpp
-    src/mainwindow.h
-    src/mainwindow.ui
     src/Assets/assetmanagerbase.cpp
     src/Assets/assetmanagerbase.h
     src/Assets/github/githubassetmanager.cpp
     src/Assets/github/githubassetmanager.h
     src/Assets/download.h
     src/Assets/download.cpp
-    src/Assets/progressdialog.cpp
-    src/Assets/progressdialog.h
-    src/Assets/progressdialog.ui
-    src/Assets/package.cpp
-    src/Assets/Package.h
     src/Archives/zippackage.cpp
     src/Archives/zippackage.h
+    src/UserInterfacemainwindow.cpp
+    src/UserInterface/mainwindow.h
+    src/UserInterface/mainwindow.ui
+    src/UserInterface/progressdialog.cpp
+    src/UserInterface/progressdialog.h
+    src/UserInterface/progressdialog.ui
+    src/UserInterface/package.cpp
+    src/UserInterface/Package.h
   )
 else()
   add_executable(ReleaseInstaller MACOSX_BUNDLE
     src/main.cpp
-    src/mainwindow.cpp
-    src/mainwindow.h
-    src/mainwindow.ui
     src/Assets/assetmanagerbase.cpp
     src/Assets/assetmanagerbase.h
     src/Assets/github/githubassetmanager.cpp
     src/Assets/github/githubassetmanager.h
     src/Assets/download.h
     src/Assets/download.cpp
-    src/Assets/progressdialog.cpp
-    src/Assets/progressdialog.h
-    src/Assets/progressdialog.ui
-    src/Assets/package.cpp
-    src/Assets/package.h
     src/Archives/zippackage.cpp
     src/Archives/zippackage.h
+    src/UserInterface/mainwindow.cpp
+    src/UserInterface/mainwindow.h
+    src/UserInterface/mainwindow.ui
+    src/UserInterface/progressdialog.cpp
+    src/UserInterface/progressdialog.h
+    src/UserInterface/progressdialog.ui
+    src/UserInterface/package.cpp
+    src/UserInterface/Package.h
   )
 endif()
 

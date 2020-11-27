@@ -2,8 +2,9 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <src/Assets/github/githubassetmanager.h>
 
-int LoadProject(QString name, GitHubProject &project, QString &install_directory)
+int LoadProject(QString name, GitHubProject &project)
 {
     QString val;
     QFile file;
@@ -29,7 +30,7 @@ int LoadProject(QString name, GitHubProject &project, QString &install_directory
     project.project_name = project_object["gh_project_name"].toString();
     project.asset_name = project_object["gh_asset_name"].toString();
     project.access_token = project_object["gh_deploy_key"].toString();
-    install_directory = project_object["install_directory"].toString();
+    project.install_directory = project_object["install_directory"].toString();
 
     return 0;
 }

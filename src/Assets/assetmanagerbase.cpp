@@ -1,6 +1,6 @@
 #include "assetmanagerbase.h"
 
-#include <src/mainwindow.h>
+#include <src/UserInterface/mainwindow.h>
 #include <QFile>
 #include <QDir>
 

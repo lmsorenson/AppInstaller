@@ -6,12 +6,12 @@
 
 #include <unistd.h>
 
-#include <src/mainwindow.h>
+#include <src/UserInterface/mainwindow.h>
 #include <src/Assets/download.h>
 #include <src/Archives/zippackage.h>
 
-GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_name, QString install_directory, GitHubProject project, MainWindow *parent)
-: AssetManagerBase(install_directory + ((install_directory.endsWith("/")) ? "" : "/"), parent)
+GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_name, GitHubProject project, MainWindow *parent)
+: AssetManagerBase(project.install_directory + ((project.install_directory.endsWith("/")) ? "" : "/"), parent)
 , asset_name_(asset_name)
 , executable_name_(executable_name)
 , github_username_(project.user_name)
