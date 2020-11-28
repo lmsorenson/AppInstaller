@@ -5,12 +5,14 @@
 #include <QFuture>
 #include <QtConcurrent>
 
-ZipPackage::ZipPackage(QString path, QString file_name, QString extension) : QObject(nullptr)
+ZipPackage::ZipPackage(QString path, QString prefix, QString tag, QString extension)
+: QObject(nullptr)
+, path_(path + ((path.endsWith("/")) ? "" : "/"))
+, filename_prefix_(prefix)
+, tag_(tag)
+, extension_(extension)
 {
-    qDebug() << "Zip package constructed for path: " << path << " file name: " << file_name << extension;
-    path_ = path + ((path.endsWith("/")) ? "" : "/");
-    file_name_ = file_name;
-    extension_ = extension;
+    qDebug() << "Zip package constructed for path: " << path << " prefix: " << prefix + "tag: " + tag << extension;
 }
 
 QStringList ZipPackage::list()
@@ -89,8 +91,10 @@ QFuture<QString> ZipPackage::extract()
         archive_write_disk_set_options(ext, flags);
         archive_write_disk_set_standard_lookup(ext);
 
-        QString read_path = path_ + file_name_ + extension_;
-        QString write_directory = path_ + "/" + file_name_ + "/";
+        QString read_path = path_ + filename_prefix_ + tag_ + extension_;
+        QString write_directory = path_ + "/" + filename_prefix_ + tag_ + "/";
+        qDebug() << read_path;
+        qDebug() << write_directory;
 
         if ((r = archive_read_open_filename(a, read_path.toStdString().c_str(), 10240)))
             exit(1);
@@ -132,6 +136,6 @@ QFuture<QString> ZipPackage::extract()
         archive_write_close(ext);
         archive_write_free(ext);
 
-        return read_path;
+        return tag_;
     });
 }

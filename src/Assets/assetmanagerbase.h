@@ -12,13 +12,13 @@ class AssetManagerBase : public QObject
     Q_OBJECT
 
 public:
-    explicit AssetManagerBase(QString install_directory, class MainWindow *parent);
+    explicit AssetManagerBase(QString install_directory, class MainWindow *parent, bool always_use_latest = false);
     virtual ~AssetManagerBase();
 
     virtual void request_asset_ids() = 0;
     virtual void check_for_updates() = 0;
     virtual QFuture<QString> download_asset(QString asset_id, QString url) = 0;
-    virtual QFuture<QString> unzip_asset(QString file_name) = 0;
+    virtual QFuture<QString> unzip_asset(QString tag) = 0;
     virtual void use_asset(QString filename) = 0;
     virtual QString generate_installation_name(QString tag) = 0;
 
@@ -44,4 +44,7 @@ protected:
     QFutureWatcher<QString> install_watcher_;
     QFutureWatcher<QString> unzip_watcher_;
     progressdialog * progress_dialog_;
+
+private:
+    bool always_use_latest_;
 };

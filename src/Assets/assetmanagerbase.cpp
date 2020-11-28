@@ -4,10 +4,11 @@
 #include <QFile>
 #include <QDir>
 
-AssetManagerBase::AssetManagerBase(QString install_directory, MainWindow *parent)
+AssetManagerBase::AssetManagerBase(QString install_directory, MainWindow *parent, bool always_use_latest)
 : QObject(parent)
 , install_directory_(install_directory)
 , progress_dialog_(new progressdialog(parent))
+, always_use_latest_(always_use_latest)
 {
     connect(&install_watcher_, &QFutureWatcher<QString>::finished, this, &AssetManagerBase::download_cleanup);
     connect(&install_watcher_, &QFutureWatcher<QString>::resultReadyAt, this, &AssetManagerBase::on_unzip_asset);
@@ -28,7 +29,6 @@ AssetManagerBase::~AssetManagerBase()
     }
 }
 
-
 void AssetManagerBase::on_install_asset(QString asset_id)
 {
     progress_dialog_->set_title(asset_id);
@@ -40,15 +40,13 @@ void AssetManagerBase::on_install_asset(QString asset_id)
     install_watcher_.setFuture(install_task);
 }
 
-
-
 void AssetManagerBase::on_unzip_asset(int result_index)
 {
-    QString filename = install_watcher_.resultAt(result_index);
+    QString tag = install_watcher_.resultAt(result_index);
 
-    if (!filename.isEmpty())
+    if (!tag.isEmpty())
     {
-        auto unzip_task = this->unzip_asset(filename);
+        auto unzip_task = this->unzip_asset(tag);
 
         unzip_watcher_.setFuture(unzip_task);
     }
@@ -56,8 +54,9 @@ void AssetManagerBase::on_unzip_asset(int result_index)
 
 void AssetManagerBase::unzip_cleanup(int result_index)
 {
-    QString filename = unzip_watcher_.resultAt(result_index);
-    qDebug() << "Attempting to delete archive: " << filename;
+    QString tag = unzip_watcher_.resultAt(result_index);
+    QString filename = install_directory_ + generate_installation_name(tag) + ".zip";
+    qDebug() << "Attempting to delete archive: " <<  filename;
 
     if (!filename.isEmpty())
     {
@@ -73,6 +72,9 @@ void AssetManagerBase::unzip_cleanup(int result_index)
 
     emit close_dialog();
     emit on_install_validated(true);
+
+    if (always_use_latest_)
+        this->on_use_asset(tag);
 }
 
 void AssetManagerBase::on_use_asset(QString tag)
