@@ -197,5 +197,8 @@ void GitHubAssetManager::use_asset(QString directory_name)
         file.remove();
     }
 
+    auto desktop_link_name = QString("/Users/" + QString(std::getenv("USER")) + "/Desktop/" + asset_name_);
+
+    symlink(command.toStdString().c_str(), link_name.toStdString().c_str());
     symlink(command.toStdString().c_str(), link_name.toStdString().c_str());
 }
