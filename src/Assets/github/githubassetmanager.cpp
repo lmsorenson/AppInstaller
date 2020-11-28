@@ -10,8 +10,8 @@
 #include <src/Assets/download.h>
 #include <src/Archives/zippackage.h>
 
-GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_name, GitHubProject project, MainWindow *parent)
-: AssetManagerBase(project.install_directory + ((project.install_directory.endsWith("/")) ? "" : "/"), parent)
+GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_name, GitHubProject project, MainWindow *parent, bool always_use_latest)
+: AssetManagerBase(project.install_directory + ((project.install_directory.endsWith("/")) ? "" : "/"), parent, always_use_latest)
 , asset_name_(asset_name)
 , executable_name_(executable_name)
 , github_username_(project.user_name)
@@ -167,9 +167,9 @@ void GitHubAssetManager::download_cleanup()
     active_download_ = nullptr;
 }
 
-QFuture<QString> GitHubAssetManager::unzip_asset(QString file_name)
+QFuture<QString> GitHubAssetManager::unzip_asset(QString tag)
 {
-    active_archive_ = new ZipPackage(install_directory_, file_name, ".zip");
+    active_archive_ = new ZipPackage(install_directory_, github_required_asset_name_, tag, ".zip");
 
     return active_archive_->extract();
 }
@@ -190,15 +190,18 @@ void GitHubAssetManager::use_asset(QString directory_name)
     qDebug() << "Use: " << command;
 
     auto link_name = QString(install_directory_ + asset_name_);
-
     if (!link_name.isEmpty())
     {
         QFile file(link_name);
         file.remove();
     }
+    symlink(command.toStdString().c_str(), link_name.toStdString().c_str());
 
     auto desktop_link_name = QString("/Users/" + QString(std::getenv("USER")) + "/Desktop/" + asset_name_);
-
-    symlink(command.toStdString().c_str(), link_name.toStdString().c_str());
-    symlink(command.toStdString().c_str(), link_name.toStdString().c_str());
+    if (!desktop_link_name.isEmpty())
+    {
+        QFile file(desktop_link_name);
+        file.remove();
+    }
+    symlink(command.toStdString().c_str(), desktop_link_name.toStdString().c_str());
 }

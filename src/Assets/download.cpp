@@ -17,14 +17,15 @@
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
 int progress_callback(void *clientp,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow);
 
-Download::Download(QString directory, QString filename, QString tag, QString url, QString authorization_token, QWidget *parent)
+Download::Download(QString directory, QString filename_prefix, QString tag, QString url, QString authorization_token, QWidget *parent)
     : QObject(parent)
     , curl_(curl_easy_init())
     , file_(nullptr)
     , url_(url)
     , auth_token_(authorization_token)
     , directory_(directory + ((directory.endsWith("/")) ? "" : "/"))
-    , filename_(filename + tag)
+    , filename_prefix_(filename_prefix)
+    , tag_(tag)
     , extension_(".zip")
     , timer_(std::make_shared<QTimer>(this))
 {
@@ -45,7 +46,7 @@ QFuture<QString> Download::run()
 
     if ( curl_ != nullptr )
     {
-        file_ = fopen((directory_ + filename_ + extension_).toStdString().c_str(), "wp");
+        file_ = fopen((directory_ + filename_prefix_ + tag_ + extension_).toStdString().c_str(), "wp");
 
         progress_.lastruntime = 0;
         progress_.curl = curl_;
@@ -78,7 +79,7 @@ QFuture<QString> Download::run()
             auto task = QtConcurrent::run([&](){
                 res = curl_easy_perform(curl_);
 
-                return filename_;
+                return tag_;
             });
 
             download_watcher_.setFuture(task);

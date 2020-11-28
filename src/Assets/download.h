@@ -50,7 +50,8 @@ private:
     QString url_;
     QString auth_token_;
     QString directory_;
-    QString filename_;
+    QString filename_prefix_;
+    QString tag_;
     QString extension_;
 
     CURL *curl_;

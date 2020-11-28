@@ -16,7 +16,7 @@ class GitHubAssetManager : public AssetManagerBase
 {
     Q_OBJECT
 public:
-    explicit GitHubAssetManager(QString asset_name, QString executable_name, GitHubProject project, class MainWindow *parent);
+    explicit GitHubAssetManager(QString asset_name, QString executable_name, GitHubProject project, class MainWindow *parent, bool always_use_latest = false);
     virtual ~GitHubAssetManager();
 
     template<class Interface> void setup(Interface * interface);
@@ -27,7 +27,7 @@ public:
     virtual QFuture<QString> download_asset(QString asset_id, QString url) override;
     virtual void download_cleanup() override;
 
-    virtual QFuture<QString> unzip_asset(QString file_name) override;
+    virtual QFuture<QString> unzip_asset(QString tag) override;
     virtual void unzip_cleanup(int result_index) override;
 
     virtual void use_asset(QString directory_name) override;

@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     //---- SETUP SELF UPDATE ----
     if (LoadProject("self", self) == 0 )
     {
-        self_update_manager = new GitHubAssetManager("Installer", "ReleaseInstaller.app", self, &w);
+        self_update_manager = new GitHubAssetManager("Installer", "ReleaseInstaller.app", self, &w, true);
         self_update_manager->setup(w.get_self_interface());
         self_update_manager->check_for_updates();
     }
