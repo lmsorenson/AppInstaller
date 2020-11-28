@@ -4,17 +4,19 @@
 #include <QFuture>
 #include <QNetworkReply>
 #include <QFutureWatcher>
-#include <src/Assets/progressdialog.h>
+
+#include <src/UserInterface/progressdialog.h>
 
 class AssetManagerBase : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit AssetManagerBase(QString install_directory, QWidget *parent);
+    explicit AssetManagerBase(QString install_directory, class MainWindow *parent);
     virtual ~AssetManagerBase();
 
     virtual void request_asset_ids() = 0;
+    virtual void check_for_updates() = 0;
     virtual QFuture<QString> download_asset(QString asset_id, QString url) = 0;
     virtual QFuture<QString> unzip_asset(QString file_name) = 0;
     virtual void use_asset(QString filename) = 0;
@@ -31,8 +33,9 @@ protected slots:
     virtual void unzip_cleanup(int result_index);
 
 signals:
+    void provide_asset_ids(QStringList string_list);
+    void provide_latest_id(QString tag_name);
     void on_install_validated(bool is_installed);
-    void on_install_complete(QString directory_name);
     void close_dialog();
 
 protected:

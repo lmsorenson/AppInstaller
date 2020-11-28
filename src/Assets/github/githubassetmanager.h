@@ -9,16 +9,20 @@ struct GitHubProject
     QString project_name;
     QString asset_name;
     QString access_token;
+    QString install_directory;
 };
 
 class GitHubAssetManager : public AssetManagerBase
 {
     Q_OBJECT
 public:
-    explicit GitHubAssetManager(QString asset_name, QString executable_name, QString install_directory, GitHubProject project, QWidget *parent);
+    explicit GitHubAssetManager(QString asset_name, QString executable_name, GitHubProject project, class MainWindow *parent);
     virtual ~GitHubAssetManager();
 
+    template<class Interface> void setup(Interface * interface);
+
     virtual void request_asset_ids() override;
+    virtual void check_for_updates() override;
 
     virtual QFuture<QString> download_asset(QString asset_id, QString url) override;
     virtual void download_cleanup() override;
@@ -31,10 +35,7 @@ public:
 
 private slots:
     void on_assets_received(QNetworkReply *reply);
-
-signals:
-    void provide_asset_ids(QStringList string_list);
-
+    void on_latest_received(QNetworkReply *reply);
 
 private:
     // installed asset names.
@@ -51,3 +52,19 @@ private:
     class Download * active_download_;
     class ZipPackage * active_archive_;
 };
+
+
+template<class Interface>
+void GitHubAssetManager::setup(Interface * package)
+{
+    // populate ui
+    QObject::connect(this, &GitHubAssetManager::provide_asset_ids, package, &Interface::provide_assets);
+    QObject::connect(this, &GitHubAssetManager::provide_latest_id, package, &Interface::notify_latest);
+
+    // handle ui commands
+    QObject::connect(package, &Interface::install, this, &GitHubAssetManager::on_install_asset);
+    QObject::connect(package, &Interface::use, this, &GitHubAssetManager::on_use_asset);
+
+    // request to validate buttons
+    QObject::connect(package, &Interface::validate_actions, this, &GitHubAssetManager::check_for_install);
+}

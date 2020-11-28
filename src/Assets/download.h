@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
-#include "progressdialog.h"
+
+#include <src/UserInterface/progressdialog.h>
 
 #include <curl/curl.h>
 #include <QFutureWatcher>

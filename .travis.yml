@@ -1,4 +1,4 @@
-language: c++
+language: cpp
 os: osx
 osx_image: xcode12.2
 env:
@@ -32,11 +32,14 @@ script:
   - export DEPLOY_NAME="Release Installer ${DEPLOY_VERSION}"
   - make
   - cpack -G DragNDrop
-  - mkdir drop
-  - cp -a "${DEPLOY_FILE_NAME}" ./drop/"${DEPLOY_FILE_NAME}"
-  - cd ./drop
-  - hdiutil attach "${DEPLOY_FILE_NAME}"
-  - cp -a "/Volumes/ReleaseInstaller-${DEPLOY_VERSION}-Darwin/ReleaseInstaller.app" ReleaseInstaller.app
+  - |
+    mkdir drop
+    cp -a "${DEPLOY_FILE_NAME}" ./drop/"${DEPLOY_FILE_NAME}"
+    cd ./drop
+  - |
+    hdiutil attach "${DEPLOY_FILE_NAME}"
+    cp -a "/Volumes/ReleaseInstaller-${DEPLOY_VERSION}-Darwin/ReleaseInstaller.app" ReleaseInstaller.app
+    hdiutil detach "/Volumes/ReleaseInstaller-${DEPLOY_VERSION}-Darwin"
   - zip -r ReleaseInstaller.zip ReleaseInstaller.app
 before_deploy:
   - git config --local user.name "lmsorenson"

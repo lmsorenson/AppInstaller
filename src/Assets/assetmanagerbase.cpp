@@ -1,9 +1,10 @@
 #include "assetmanagerbase.h"
 
+#include <src/UserInterface/mainwindow.h>
 #include <QFile>
 #include <QDir>
 
-AssetManagerBase::AssetManagerBase(QString install_directory, QWidget *parent)
+AssetManagerBase::AssetManagerBase(QString install_directory, MainWindow *parent)
 : QObject(parent)
 , install_directory_(install_directory)
 , progress_dialog_(new progressdialog(parent))
