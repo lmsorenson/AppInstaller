@@ -50,6 +50,9 @@ if(ANDROID)
     src/UserInterface/progressdialog.ui
     src/UserInterface/package.cpp
     src/UserInterface/Package.h
+    src/UserInterface/updatedialog.cpp
+    src/UserInterface/updatedialog.h
+    src/UserInterface/updatedialog.ui
   )
 else()
   add_executable(ReleaseInstaller MACOSX_BUNDLE
@@ -70,6 +73,12 @@ else()
     src/UserInterface/progressdialog.ui
     src/UserInterface/package.cpp
     src/UserInterface/Package.h
+    src/UserInterface/updatedialog.cpp
+    src/UserInterface/updatedialog.h
+    src/UserInterface/updatedialog.ui
+    src/UserInterface/notificationdialog.cpp
+    src/UserInterface/notificationdialog.h
+    src/UserInterface/notificationdialog.ui
   )
 endif()
 

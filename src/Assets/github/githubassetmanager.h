@@ -59,6 +59,7 @@ void GitHubAssetManager::setup(Interface * package)
 {
     // populate ui
     QObject::connect(this, &GitHubAssetManager::provide_asset_ids, package, &Interface::provide_assets);
+    QObject::connect(this, &GitHubAssetManager::provide_latest_id, package, &Interface::notify_latest);
 
     // handle ui commands
     QObject::connect(package, &Interface::install, this, &GitHubAssetManager::on_install_asset);

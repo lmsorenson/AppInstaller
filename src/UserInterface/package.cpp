@@ -2,6 +2,8 @@
 #include <QStringListModel>
 #include <QDebug>
 
+#include <src/UserInterface/notificationdialog.h>
+
 PackageInterface::PackageInterface(QObject * parent)
 : QObject(parent)
 {
@@ -56,6 +58,13 @@ void PackageInterface::provide_assets(QStringList asset_ids)
 
     if (list_display_->selectionModel() != nullptr)
         connect(list_display_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(on_selection_changed(QItemSelection)));
+}
+
+void PackageInterface::notify_latest(QString tag_name)
+{
+    auto notification = new  NotificationDialog(tag_name, dynamic_cast<QWidget*>(this->parent()));
+    connect(notification, &NotificationDialog::yes, [this, tag_name]() { emit install(tag_name); });
+    notification->exec();
 }
 
 void PackageInterface::on_install()

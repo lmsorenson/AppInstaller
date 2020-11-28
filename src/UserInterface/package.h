@@ -13,6 +13,7 @@ public:
 
 public slots:
     void provide_assets(QStringList asset_ids);
+    void notify_latest(QString tag_name);
     void on_install();
     void on_use();
 

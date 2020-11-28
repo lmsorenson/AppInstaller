@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     {
         self_update_manager = std::make_shared<GitHubAssetManager>("Installer", "ReleaseInstaller.app", self, &w);
         self_update_manager->setup(w.get_self_interface());
-        self_update_manager->request_asset_ids();
+        self_update_manager->check_for_updates();
     }
 
     return a.exec();

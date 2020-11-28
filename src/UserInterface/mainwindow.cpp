@@ -15,10 +15,10 @@ MainWindow::MainWindow(QString project_name, QString install_directory, QString 
 {
     ui->setupUi(this);
 
-    interface_ = new PackageInterface();
+    interface_ = new PackageInterface(this);
     interface_->set_view(ui->listView);
 
-    self_ = new PackageInterface();
+    self_ = new PackageInterface(this);
     self_->set_view(ui->SelfUpdateListView);
 
     this->setWindowTitle(title_);

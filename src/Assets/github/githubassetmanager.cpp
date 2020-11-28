@@ -109,31 +109,28 @@ void GitHubAssetManager::on_latest_received(QNetworkReply *reply)
         //parse json
         QJsonDocument jsonResponse = QJsonDocument::fromJson(reply_string.toUtf8());
 
-        if (jsonResponse.isArray())
+        if (jsonResponse.isObject())
         {
-            auto array = jsonResponse.array();
+            qDebug() << "indexing assets. ";
+            auto item = jsonResponse.object();
 
-            if (!array.isEmpty())
+            auto assets = item["assets"].toArray();
+            for (auto it = assets.begin(); it != assets.end(); it++)
             {
-                auto item = array.first();
-
-                auto assets = item["assets"].toArray();
-                for (auto it = assets.begin(); it != assets.end(); it++)
+                qDebug() << "ASSET MANAGER: found " << item["tag_name"];
+                auto asset = it->toObject();
+                if (asset["name"] == (github_required_asset_name_ + ".zip"))
                 {
-                    auto asset = it->toObject();
-                    if (asset["name"] == (github_required_asset_name_ + ".zip"))
-                    {
-                        qDebug() << "ASSET MANAGER: found " << item["tag_name"];
-                        request_map_.insert(item["tag_name"].toString(), asset["url"].toString());
-                        tag_name = item["tag_name"].toString();
-                    }
+                    qDebug() << "ASSET MANAGER: found " << item["tag_name"];
+                    request_map_.insert(item["tag_name"].toString(), asset["url"].toString());
+                    tag_name = item["tag_name"].toString();
                 }
             }
         }
 
         delete reply;
 
-        if (tag_name.isEmpty() )
+        if (tag_name.isEmpty())
         {
             qDebug() << "Required assets were not found on latest release.";
         }
