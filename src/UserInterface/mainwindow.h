@@ -24,10 +24,6 @@ public:
 public slots:
     void on_selected_install_exists(bool install_exists);
 
-private slots:
-    void to_self_update_screen();
-    void to_install_screen();
-
 private:
     Ui::MainWindow *ui;
 

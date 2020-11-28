@@ -19,7 +19,6 @@ MainWindow::MainWindow(QString project_name, QString install_directory, QString 
     interface_->set_view(ui->listView);
 
     self_ = new PackageInterface(this);
-    self_->set_view(ui->SelfUpdateListView);
 
     this->setWindowTitle(title_);
     ui->InstallDirectoryDisplay->setText(install_directory);
@@ -35,16 +34,6 @@ MainWindow::MainWindow(QString project_name, QString install_directory, QString 
         connect(ui->install, &QPushButton::released, interface_, &PackageInterface::on_install);
         connect(ui->use, &QPushButton::released, interface_, &PackageInterface::on_use);
     }
-
-    if (self_)
-    {
-        connect(ui->SelectVersion, &QPushButton::released, self_, &PackageInterface::on_install);
-        connect(ui->UseSelectedInstallerVersion, &QPushButton::released, interface_, &PackageInterface::on_use);
-    }
-
-    connect(ui->toolButton, &QPushButton::released, this, &MainWindow::to_self_update_screen);
-    connect(ui->ReturnButton, &QPushButton::released, this, &MainWindow::to_install_screen);
-
 }
 
 MainWindow::~MainWindow()
@@ -75,14 +64,3 @@ void MainWindow::on_selected_install_exists(bool install_exists)
         ui->use->setDisabled(true);
     }
 }
-
-void MainWindow::to_install_screen()
-{
-    ui->stackedWidget->setCurrentIndex(0);
-}
-
-void MainWindow::to_self_update_screen()
-{
-    ui->stackedWidget->setCurrentIndex(1);
-}
-
