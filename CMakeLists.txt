@@ -34,6 +34,7 @@ find_package(CURL REQUIRED)
 if(ANDROID)
   add_library(ReleaseInstaller SHARED
     src/main.cpp
+    src/Configuration.h
     src/Assets/assetmanagerbase.cpp
     src/Assets/assetmanagerbase.h
     src/Assets/github/githubassetmanager.cpp
@@ -57,6 +58,7 @@ if(ANDROID)
 else()
   add_executable(ReleaseInstaller MACOSX_BUNDLE
     src/main.cpp
+    src/Configuration.h
     src/Assets/assetmanagerbase.cpp
     src/Assets/assetmanagerbase.h
     src/Assets/github/githubassetmanager.cpp
