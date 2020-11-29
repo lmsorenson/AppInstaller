@@ -13,11 +13,13 @@ int main(int argc, char *argv[])
     if (LoadProject("project", project) != 0) { return 1; }
 
     //---- CREATE APPLICATION AND WINDOW ----
+    qDebug() << "Creating application and window.";
     QApplication a(argc, argv);
     MainWindow w(project.project_name, project.install_directory, project.asset_name + ".zip");
     w.show();
 
     //---- SETUP ASSET ----
+    qDebug() << "Setup project manager.";
     project_manager = new GitHubAssetManager("AgCabLab", "AgCab.app", project, &w);
     project_manager->setup(w.get_interface());
     QObject::connect(project_manager, &GitHubAssetManager::on_install_validated, &w, &MainWindow::on_selected_install_exists);
@@ -26,10 +28,13 @@ int main(int argc, char *argv[])
     //---- SETUP SELF UPDATE ----
     if (LoadProject("self", self) == 0 )
     {
+        qDebug() << "Setting up self update manager. ";
         self_update_manager = new GitHubAssetManager("Installer", "ReleaseInstaller.app", self, &w, true);
         self_update_manager->setup(w.get_self_interface());
         self_update_manager->check_for_updates();
     }
 
-    return a.exec();
+    auto result = a.exec();
+
+    return result;
 }
