@@ -8,6 +8,8 @@ GitHubAssetManager *self_update_manager = nullptr, *project_manager = nullptr;
 
 int main(int argc, char *argv[])
 {
+    qDebug() << "Initializing the installer.";
+
     GitHubProject project, self;
 
     if (LoadProject("project", project) != 0) { return 1; }
