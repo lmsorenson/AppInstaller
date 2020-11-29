@@ -35,6 +35,11 @@ void AssetManagerBase::on_install_asset(QString asset_id)
     progress_dialog_->show();
     progress_dialog_->setDisabled(false);
 
+    if (!QDir(install_directory_).exists())
+    {
+        QDir().mkdir(install_directory_);
+    }
+
     auto install_task = this->download_asset(asset_id, request_map_[asset_id]);
 
     install_watcher_.setFuture(install_task);
