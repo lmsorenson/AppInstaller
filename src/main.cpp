@@ -4,10 +4,10 @@
 #include <src/Assets/github/githubassetmanager.h>
 #include <src/Configuration.h>
 
+GitHubAssetManager *self_update_manager = nullptr, *project_manager = nullptr;
 
 int main(int argc, char *argv[])
 {
-    GitHubAssetManager *self_update_manager = nullptr, *project_manager = nullptr;
     GitHubProject project, self;
 
     if (LoadProject("project", project) != 0) { return 1; }
