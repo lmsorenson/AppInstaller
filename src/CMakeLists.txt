@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ReleaseInstaller LANGUAGES CXX VERSION $env{DEPLOY_VERSION})
-message("DEPLOY VERSION: $env{DEPLOY_VERSION}")
+project(ReleaseInstaller LANGUAGES CXX VERSION $ENV{DEPLOY_VERSION})
+message("DEPLOY VERSION: $ENV{DEPLOY_VERSION}")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -18,53 +18,33 @@ find_package(Qt5 COMPONENTS Concurrent REQUIRED)
 find_package(LibArchive)
 find_package(CURL REQUIRED)
 
+file(GLOB PROJECT_SOURCE_FILES
+        main.cpp
+        Configuration.h
+        Assets/assetmanagerbase.cpp
+        Assets/assetmanagerbase.h
+        Assets/github/githubassetmanager.cpp
+        Assets/github/githubassetmanager.h
+        Assets/download.h
+        Assets/download.cpp
+        Archives/zippackage.cpp
+        Archives/zippackage.h
+        UserInterface/mainwindow.cpp
+        UserInterface/mainwindow.h
+        UserInterface/mainwindow.ui
+        UserInterface/progressdialog.cpp
+        UserInterface/progressdialog.h
+        UserInterface/progressdialog.ui
+        UserInterface/package.cpp
+        UserInterface/Package.h
+        UserInterface/notificationdialog.cpp
+        UserInterface/notificationdialog.h
+        UserInterface/notificationdialog.ui)
+
 if(ANDROID)
-  add_library(ReleaseInstaller SHARED
-    main.cpp
-    Configuration.h
-    Assets/assetmanagerbase.cpp
-    Assets/assetmanagerbase.h
-    Assets/github/githubassetmanager.cpp
-    Assets/github/githubassetmanager.h
-    Assets/download.h
-    Assets/download.cpp
-    Archives/zippackage.cpp
-    Archives/zippackage.h
-    UserInterfacemainwindow.cpp
-    UserInterface/mainwindow.h
-    UserInterface/mainwindow.ui
-    UserInterface/progressdialog.cpp
-    UserInterface/progressdialog.h
-    UserInterface/progressdialog.ui
-    UserInterface/package.cpp
-    UserInterface/Package.h
-    UserInterface/notificationdialog.cpp
-    UserInterface/notificationdialog.h
-    UserInterface/notificationdialog.ui
-  )
+  add_library(ReleaseInstaller SHARED ${PROJECT_SOURCE_FILES})
 else()
-  add_executable(ReleaseInstaller MACOSX_BUNDLE
-    main.cpp
-    Configuration.h
-    Assets/assetmanagerbase.cpp
-    Assets/assetmanagerbase.h
-    Assets/github/githubassetmanager.cpp
-    Assets/github/githubassetmanager.h
-    Assets/download.h
-    Assets/download.cpp
-    Archives/zippackage.cpp
-    Archives/zippackage.h
-    UserInterface/mainwindow.cpp
-    UserInterface/mainwindow.h
-    UserInterface/mainwindow.ui
-    UserInterface/progressdialog.cpp
-    UserInterface/progressdialog.h
-    UserInterface/progressdialog.ui
-    UserInterface/package.cpp
-    UserInterface/Package.h
-    UserInterface/notificationdialog.cpp
-    UserInterface/notificationdialog.h
-    UserInterface/notificationdialog.ui)
+  add_executable(ReleaseInstaller MACOSX_BUNDLE ${PROJECT_SOURCE_FILES})
 endif()
 
 include_directories(${CURL_INCLUDE_DIR})
