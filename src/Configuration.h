@@ -2,7 +2,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <src/Assets/github/githubassetmanager.h>
+#include <Assets/github/githubassetmanager.h>
 
 int LoadProject(QString name, GitHubProject &project)
 {

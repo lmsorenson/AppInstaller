@@ -8,7 +8,7 @@
 #include <QtConcurrent>
 #include <QDebug>
 
-#include "src/Assets/download.h"
+#include "Assets/download.h"
 
 
 

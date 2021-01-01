@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QFutureWatcher>
-#include <src/Assets/assetmanagerbase.h>
+#include <Assets/assetmanagerbase.h>
 
 struct GitHubProject
 {

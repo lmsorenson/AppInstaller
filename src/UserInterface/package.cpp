@@ -2,7 +2,7 @@
 #include <QStringListModel>
 #include <QDebug>
 
-#include <src/UserInterface/notificationdialog.h>
+#include <UserInterface/notificationdialog.h>
 
 PackageInterface::PackageInterface(QObject * parent)
 : QObject(parent)

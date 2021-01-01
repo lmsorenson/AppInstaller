@@ -1,8 +1,8 @@
-#include <src/UserInterface/mainwindow.h>
+#include <UserInterface/mainwindow.h>
 #include <QApplication>
 #include <QObject>
-#include <src/Assets/github/githubassetmanager.h>
-#include <src/Configuration.h>
+#include <Assets/github/githubassetmanager.h>
+#include <Configuration.h>
 
 GitHubAssetManager *self_update_manager = nullptr, *project_manager = nullptr;
 

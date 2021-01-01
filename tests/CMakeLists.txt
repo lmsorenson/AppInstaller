@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(test LANGUAGES CXX)
 
 
-find_package(Qt5Test REQUIRED)
+find_package(Qt5 COMPONENTS Test REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

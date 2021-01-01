@@ -6,9 +6,9 @@
 
 #include <unistd.h>
 
-#include <src/UserInterface/mainwindow.h>
-#include <src/Assets/download.h>
-#include <src/Archives/zippackage.h>
+#include <UserInterface/mainwindow.h>
+#include <Assets/download.h>
+#include <Archives/zippackage.h>
 
 GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_name, GitHubProject project, MainWindow *parent, bool always_use_latest)
 : AssetManagerBase(project.install_directory + ((project.install_directory.endsWith("/")) ? "" : "/"), parent, always_use_latest)
