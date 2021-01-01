@@ -32,6 +32,8 @@ script:
   - export DEPLOY_NAME="Release Installer ${DEPLOY_VERSION}"
   - make
   - cpack -G DragNDrop
+  - pwd
+  - ls -la
   - |
     mkdir drop
     cp -a "${DEPLOY_FILE_NAME}" ./drop/"${DEPLOY_FILE_NAME}"
