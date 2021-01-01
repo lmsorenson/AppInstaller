@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
     //---- SETUP ASSET ----
     qDebug() << "Setup project manager.";
-    project_manager = new GitHubAssetManager("AgCabLab", "AgCab.app", project, &w);
+    project_manager = new GitHubAssetManager(project.project_name, project.asset_name, project, &w);
     project_manager->setup(w.get_interface());
     QObject::connect(project_manager, &GitHubAssetManager::on_install_validated, &w, &MainWindow::on_selected_install_exists);
     project_manager->request_asset_ids();
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     if (LoadProject("self", self) == 0 )
     {
         qDebug() << "Setting up self update manager. ";
-        self_update_manager = new GitHubAssetManager("Installer", "ReleaseInstaller.app", self, &w, true);
+        self_update_manager = new GitHubAssetManager(self.project_name, self.asset_name, self, &w, true);
         self_update_manager->setup(w.get_self_interface());
         self_update_manager->check_for_updates();
     }

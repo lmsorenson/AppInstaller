@@ -186,7 +186,7 @@ void GitHubAssetManager::unzip_cleanup(int result_index)
 
 void GitHubAssetManager::use_asset(QString directory_name)
 {
-    auto command = QString(directory_name + "/" + executable_name_);
+    auto command = QString(directory_name + "/" + executable_name_ + ".app");
     qDebug() << "Use: " << command;
 
     auto link_name = QString(install_directory_ + asset_name_);
