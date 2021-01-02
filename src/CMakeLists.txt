@@ -52,7 +52,7 @@ else()
   else()
     message("Build Type ${CMAKE_BUILD_TYPE}: creating executable.")
     add_executable(ReleaseInstaller ${PROJECT_SOURCE_FILES})
-  endif(CMAKE_BUILD_TYPE EQUAL "Release")
+  endif(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 include_directories(${CURL_INCLUDE_DIR})

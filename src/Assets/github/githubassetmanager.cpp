@@ -69,28 +69,30 @@ void GitHubAssetManager::on_assets_received(QNetworkReply *reply)
         for (auto itr = array.begin(); itr != array.end(); itr++)
         {
             auto item = itr->toObject();
+            ProjectTag *current_tag = nullptr;
+            QList<Dependency> dependency_list;
 
-            ProjectTag current_tag(item["tag_name"].toString());
             auto assets = item["assets"].toArray();
-
             for (auto it = assets.begin(); it != assets.end(); it++)
             {
                 auto asset = it->toObject();
                 for(auto dependency : project_.project_dependencies())
-                {
-                    qDebug() << "Checking for dependency match: " << dependency.package_name() << " =? " << asset["name"].toString();
-
-                    if (asset["name"].toString() == dependency.package_name())
-                        current_tag.add_dependency(Dependency(dependency.package_name(), dependency.information_filename(), dependency.is_required()));
-                }
-
+                    if (asset["name"].toString().compare(dependency.package_name(), Qt::CaseInsensitive) == 0)
+                        dependency_list << Dependency(dependency.package_name(), asset["url"].toString(), dependency.information_filename(), dependency.is_required());
 
                 if (asset["name"] == (project_.asset_name() + ".zip"))
                 {
-                    qDebug() << "ASSET MANAGER: found " << item["tag_name"];
                     request_map_.insert(item["tag_name"].toString(), asset["url"].toString());
-                    list << current_tag;
+                    current_tag = new ProjectTag(item["tag_name"].toString());
                 }
+            }
+
+            if (current_tag)
+            {
+                qDebug() << "ASSET MANAGER: found " << item["tag_name"];
+                current_tag->add_dependency(dependency_list);
+                list << *current_tag;
+                delete current_tag;
             }
         }
 

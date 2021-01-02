@@ -48,7 +48,10 @@ void PackageInterface::provide_assets(QList<ProjectTag> tags)
     {
         qDebug() << "PACKAGE INTERFACE: '" << item.tag() << "' item.";
         for (auto dependency : item.dependency_list())
-            qDebug() << "PACKAGE INTERFACE: '" << item.tag() << "' dependency - " << dependency.name();
+        {
+            qDebug() << "PACKAGE INTERFACE: '" << item.tag() << "' dependency - " << dependency.name() << " - " << dependency.url();
+        }
+
         tag_name_list << item.tag();
     }
 
