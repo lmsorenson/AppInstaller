@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     project_manager->request_asset_ids();
 
     //---- SETUP SELF UPDATE ----
-    GitHubProject self = LoadProject("project", self_update_config_load_status);
+    GitHubProject self = LoadProject("self", self_update_config_load_status);
     if (self_update_config_load_status == 0 )
     {
         qDebug() << "Setting up self update manager. ";
