@@ -3,10 +3,18 @@
 #include <QFutureWatcher>
 #include <Assets/assetmanagerbase.h>
 
+struct GitHubProjectDependency
+{
+    QString package_name;
+    QString information_filename;
+    bool is_required;
+};
+
 struct GitHubProject
 {
     QString user_name;
     QString project_name;
+    QList<GitHubProjectDependency> project_dependencies;
     QString asset_name;
     QString access_token;
     QString install_directory;
