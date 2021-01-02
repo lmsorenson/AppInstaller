@@ -23,9 +23,9 @@ void PackageInterface::set_view(QListView * list_view)
     list_display_->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-void PackageInterface::provide_assets(QStringList asset_ids)
+void PackageInterface::provide_assets(QList<ProjectTag> tags)
 {
-    if (!asset_ids.empty())
+    if (!tags.empty())
     {
         qDebug() << "MAIN WINDOW: Assets received.";
     }
@@ -42,18 +42,20 @@ void PackageInterface::provide_assets(QStringList asset_ids)
     }
 
     QStringListModel * model = new QStringListModel(this->parent());
-    QStringList list;
+    QStringList tag_name_list;
 
-    for (auto item : asset_ids)
+    for (auto item : tags)
     {
-        qDebug() << "PACKAGE INTERFACE: '" << item << "' item.";
-        list << item;
+        qDebug() << "PACKAGE INTERFACE: '" << item.tag() << "' item.";
+        for (auto dependency : item.dependency_list())
+            qDebug() << "PACKAGE INTERFACE: '" << item.tag() << "' dependency - " << dependency.name();
+        tag_name_list << item.tag();
     }
 
-    list.removeDuplicates();
-    list.sort();
+    tag_name_list.removeDuplicates();
+    tag_name_list.sort();
 
-    model->setStringList( list );
+    model->setStringList(tag_name_list );
     list_display_->setModel( model );
 
     if (list_display_->selectionModel() != nullptr)

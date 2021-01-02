@@ -2,29 +2,16 @@
 
 #include <QFutureWatcher>
 #include <Assets/assetmanagerbase.h>
+#include "GitHubProject.h"
 
-struct GitHubProjectDependency
-{
-    QString package_name;
-    QString information_filename;
-    bool is_required;
-};
 
-struct GitHubProject
-{
-    QString user_name;
-    QString project_name;
-    QList<GitHubProjectDependency> project_dependencies;
-    QString asset_name;
-    QString access_token;
-    QString install_directory;
-};
+
 
 class GitHubAssetManager : public AssetManagerBase
 {
     Q_OBJECT
 public:
-    explicit GitHubAssetManager(QString asset_name, QString executable_name, GitHubProject project, class MainWindow *parent, bool always_use_latest = false);
+    explicit GitHubAssetManager(GitHubProject project, class MainWindow *parent, bool always_use_latest = false);
     virtual ~GitHubAssetManager();
 
     template<class Interface> void setup(Interface * interface);
@@ -46,15 +33,7 @@ private slots:
     void on_latest_received(QNetworkReply *reply);
 
 private:
-    // installed asset names.
-    QString asset_name_;
-    QString executable_name_;
-
-    // remote asset names.
-    QString github_username_;
-    QString github_project_;
-    QString github_token_;
-    QString github_required_asset_name_;
+    GitHubProject project_;
 
     QNetworkAccessManager network_;
     class Download * active_download_;

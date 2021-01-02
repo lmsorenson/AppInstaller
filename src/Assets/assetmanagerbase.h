@@ -6,6 +6,7 @@
 #include <QFutureWatcher>
 
 #include <UserInterface/progressdialog.h>
+#include <Assets/Models/tag.h>
 
 class AssetManagerBase : public QObject
 {
@@ -34,7 +35,7 @@ protected slots:
     virtual void unzip_cleanup(int result_index);
 
 signals:
-    void provide_asset_ids(QStringList string_list);
+    void provide_asset_ids(QList<ProjectTag> string_list);
     void provide_latest_id(QString tag_name);
     void on_install_validated(bool is_installed);
     void close_dialog();
