@@ -136,6 +136,8 @@ void GitHubAssetManager::on_latest_received(QNetworkReply *reply)
         }
         else
         {
+            if (is_tag_installed(tag_name)) return;
+
             qDebug() << "ASSET MANAGER: providing tag name for latest.";
             emit provide_latest_id(tag_name);
         }

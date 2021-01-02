@@ -89,11 +89,16 @@ void AssetManagerBase::on_use_asset(QString tag)
 
 void AssetManagerBase::check_for_install(QString tag)
 {
-    QDir dir(install_directory_ + generate_installation_name(tag));
-
-    if (dir.exists() && !dir.isEmpty())
+    if (this->is_tag_installed(tag))
         emit on_install_validated(true);
 
     else
         emit on_install_validated(false);
+}
+
+bool AssetManagerBase::is_tag_installed(QString tag)
+{
+    QDir dir(install_directory_ + generate_installation_name(tag));
+
+    return (dir.exists() && !dir.isEmpty());
 }

@@ -21,6 +21,7 @@ public:
     virtual QFuture<QString> unzip_asset(QString tag) = 0;
     virtual void use_asset(QString filename) = 0;
     virtual QString generate_installation_name(QString tag) = 0;
+    bool is_tag_installed(QString tag);
 
 public slots:
     void on_install_asset(QString asset_id);
