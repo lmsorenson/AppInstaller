@@ -38,8 +38,6 @@ signals:
     void provide_asset_ids(QList<ProjectTag> string_list);
     void provide_latest_id(QString tag_name);
     void on_install_validated(bool is_installed);
-
-    ///
     void close_dialog();
 
 protected:

@@ -1,4 +1,4 @@
-#include "Tag.h"
+#include <Assets/Models/tag.h>
 
 ProjectTag::ProjectTag(QString name) : tag_name_(name) {}
 

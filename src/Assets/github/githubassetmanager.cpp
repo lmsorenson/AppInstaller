@@ -163,13 +163,10 @@ QFuture<QString> GitHubAssetManager::download_asset(QString asset_id, QString ur
 {
     qDebug() << "download initiated for Tag: " << asset_id << "at REQUEST URL: " << url;
 
-    active_download_ = new Download(
-            install_directory_,
-            project_.asset_name(),
-            asset_id,
-            url,
-            project_.access_token(),
-            dynamic_cast<QWidget*>(this->parent()));
+    QString file_name = project_.asset_name() + asset_id + ".zip";
+    QString save_to = install_directory_ + ((install_directory_.endsWith("/")) ? "" : "/") + file_name;
+
+    active_download_ = new Download(save_to, asset_id, url, project_.access_token(), dynamic_cast<QWidget*>(this->parent()));
 
     QObject::connect(active_download_, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
 
