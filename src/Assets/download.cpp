@@ -108,6 +108,8 @@ void Download::on_download_finished()
 
     if (timer_ != nullptr)
         timer_->stop();
+
+    emit finished();
 }
 
 Download::~Download()

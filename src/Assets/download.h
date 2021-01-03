@@ -45,6 +45,7 @@ private slots:
 
 signals:
     void make_progress(int progress);
+    void finished();
 
 private:
     QString url_;
