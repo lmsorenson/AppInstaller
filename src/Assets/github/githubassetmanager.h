@@ -1,56 +1,53 @@
 #pragma once
 
 #include <QFutureWatcher>
-#include <src/Assets/assetmanagerbase.h>
+#include <Assets/assetmanagerbase.h>
+#include "GitHubProject.h"
 
-struct GitHubProject
-{
-    QString user_name;
-    QString project_name;
-    QString asset_name;
-    QString access_token;
-    QString install_directory;
-};
+
+
 
 class GitHubAssetManager : public AssetManagerBase
 {
     Q_OBJECT
 public:
-    explicit GitHubAssetManager(QString asset_name, QString executable_name, GitHubProject project, class MainWindow *parent, bool always_use_latest = false);
+    explicit GitHubAssetManager(GitHubProject project, class MainWindow *parent, bool always_use_latest = false);
     virtual ~GitHubAssetManager();
 
     template<class Interface> void setup(Interface * interface);
 
+    // starting points
     virtual void request_asset_ids() override;
     virtual void check_for_updates() override;
 
+    // asset
     virtual QFuture<QString> download_asset(QString asset_id, QString url) override;
     virtual void download_cleanup() override;
 
+    // unpack
     virtual QFuture<QString> unzip_asset(QString tag) override;
     virtual void unzip_cleanup(int result_index) override;
 
+    // use
     virtual void use_asset(QString directory_name) override;
     virtual QString generate_installation_name(QString tag) override;
+
+    // dependencies
+    virtual void begin_install_dependencies(QString tag) override;
+    virtual void install_current_dependency() override;
 
 private slots:
     void on_assets_received(QNetworkReply *reply);
     void on_latest_received(QNetworkReply *reply);
 
 private:
-    // installed asset names.
-    QString asset_name_;
-    QString executable_name_;
-
-    // remote asset names.
-    QString github_username_;
-    QString github_project_;
-    QString github_token_;
-    QString github_required_asset_name_;
+    GitHubProject project_;
 
     QNetworkAccessManager network_;
     class Download * active_download_;
     class ZipPackage * active_archive_;
+
+    QList<class Download*> dependency_downloads_;
 };
 
 

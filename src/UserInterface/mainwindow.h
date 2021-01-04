@@ -4,7 +4,7 @@
 #include <QNetworkAccessManager>
 #include <QList>
 #include <QtConcurrent>
-#include <src/UserInterface/package.h>
+#include <UserInterface/package.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

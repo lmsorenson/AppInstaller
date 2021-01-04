@@ -2,6 +2,8 @@
 
 #include <QObject>
 #include <QListView>
+#include <QList>
+#include <Assets/Models/tag.h>
 
 class PackageInterface : public QObject
 {
@@ -12,7 +14,7 @@ public:
     void set_view(QListView * list_view);
 
 public slots:
-    void provide_assets(QStringList asset_ids);
+    void provide_assets(QList<ProjectTag> tags);
     void notify_latest(QString tag_name);
     void on_install();
     void on_use();

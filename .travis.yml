@@ -22,6 +22,7 @@ before_script:
 script:
   - |
     cmake \
+    -DCMAKE_BUILD_TYPE=Release \
     -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 \
     -DLibArchive_INCLUDE_DIR=$(brew --prefix libarchive)/include \
     -DLibArchive_LIBRARIES=$(brew --prefix libarchive)/lib \
@@ -32,6 +33,8 @@ script:
   - export DEPLOY_NAME="Release Installer ${DEPLOY_VERSION}"
   - make
   - cpack -G DragNDrop
+  - pwd
+  - ls -la
   - |
     mkdir drop
     cp -a "${DEPLOY_FILE_NAME}" ./drop/"${DEPLOY_FILE_NAME}"
@@ -52,6 +55,5 @@ deploy:
     - "ReleaseInstaller.zip"
   skip_cleanup: true
   name: ${DEPLOY_NAME}
-  body: "First try"
   tag_name: ${DEPLOY_TAG}
   prerelease: false

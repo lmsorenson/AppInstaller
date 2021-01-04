@@ -5,7 +5,8 @@
 #include <QNetworkReply>
 #include <QFutureWatcher>
 
-#include <src/UserInterface/progressdialog.h>
+#include <UserInterface/progressdialog.h>
+#include <Assets/Models/tag.h>
 
 class AssetManagerBase : public QObject
 {
@@ -21,6 +22,7 @@ public:
     virtual QFuture<QString> unzip_asset(QString tag) = 0;
     virtual void use_asset(QString filename) = 0;
     virtual QString generate_installation_name(QString tag) = 0;
+    bool is_tag_installed(QString tag);
 
 public slots:
     void on_install_asset(QString asset_id);
@@ -31,18 +33,25 @@ protected slots:
     virtual void download_cleanup() = 0;
     void on_unzip_asset(int result_index);
     virtual void unzip_cleanup(int result_index);
+    virtual void begin_install_dependencies(QString tag) = 0;
+    virtual void install_current_dependency() = 0;
+    void finish_install();
 
 signals:
-    void provide_asset_ids(QStringList string_list);
+    void provide_asset_ids(QList<ProjectTag> string_list);
     void provide_latest_id(QString tag_name);
     void on_install_validated(bool is_installed);
     void close_dialog();
+    void asset_installed(QString tag);
+    void install_finished(QString tag);
+    void dependency_install_ready();
+    void dependencies_installed();
 
 protected:
     QString install_directory_;
-    QMap<QString, QString> request_map_;
-    QFutureWatcher<QString> install_watcher_;
-    QFutureWatcher<QString> unzip_watcher_;
+    QMap<QString, ProjectTag*> request_map_;
+    QFutureWatcher<QString> asset_install_watcher_;
+    QFutureWatcher<QString> asset_unzip_watcher_;
     progressdialog * progress_dialog_;
 
 private:

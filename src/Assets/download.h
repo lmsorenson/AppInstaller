@@ -1,7 +1,7 @@
 #pragma once
 #include <QObject>
 
-#include <src/UserInterface/progressdialog.h>
+#include <UserInterface/progressdialog.h>
 
 #include <curl/curl.h>
 #include <QFutureWatcher>
@@ -32,7 +32,7 @@ class Download : public QObject
     Q_OBJECT
 
 public:
-    explicit Download(QString directory, QString filename, QString tag, QString url, QString authorization_token, QWidget *parent);
+    explicit Download(QString save_to, QString tag, QString url, QString authorization_token, QWidget *parent);
     ~Download();
 
     QFuture<QString> run();
@@ -45,14 +45,13 @@ private slots:
 
 signals:
     void make_progress(int progress);
+    void finished();
 
 private:
     QString url_;
-    QString auth_token_;
-    QString directory_;
-    QString filename_prefix_;
+    QString save_to_;
     QString tag_;
-    QString extension_;
+    QString auth_token_;
 
     CURL *curl_;
     FILE * file_;

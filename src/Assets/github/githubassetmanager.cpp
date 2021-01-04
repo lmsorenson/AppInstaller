@@ -6,21 +6,20 @@
 
 #include <unistd.h>
 
-#include <src/UserInterface/mainwindow.h>
-#include <src/Assets/download.h>
-#include <src/Archives/zippackage.h>
+#include <UserInterface/mainwindow.h>
+#include <Assets/download.h>
+#include <Archives/zippackage.h>
 
-GitHubAssetManager::GitHubAssetManager(QString asset_name, QString executable_name, GitHubProject project, MainWindow *parent, bool always_use_latest)
-: AssetManagerBase(project.install_directory + ((project.install_directory.endsWith("/")) ? "" : "/"), parent, always_use_latest)
-, asset_name_(asset_name)
-, executable_name_(executable_name)
-, github_username_(project.user_name)
-, github_project_(project.project_name)
-, github_required_asset_name_(project.asset_name)
-, github_token_(project.access_token)
+GitHubAssetManager::GitHubAssetManager(GitHubProject project, MainWindow *parent, bool always_use_latest)
+: AssetManagerBase(project.install_directory() + ((project.install_directory().endsWith("/")) ? "" : "/"), parent, always_use_latest)
+, project_(project)
 , active_download_(nullptr)
 , active_archive_(nullptr)
 {
+    qDebug() << "initiating asset manager for asset: " << project.project_name();
+
+    for(auto dep : project.project_dependencies())
+        qDebug() << "--- " << ((dep.is_required()) ? "required" : "optional") << " dependency " << dep.package_name();
 }
 
 GitHubAssetManager::~GitHubAssetManager()
@@ -30,67 +29,75 @@ GitHubAssetManager::~GitHubAssetManager()
 
 QString GitHubAssetManager::generate_installation_name(QString tag)
 {
-    return (github_required_asset_name_ + tag);
+    return (project_.asset_name() + tag);
 }
 
 void GitHubAssetManager::request_asset_ids()
 {
-    qDebug() << "ASSET MANAGER: Requesting assets for --> " << github_username_ << "/" << github_project_;
+    qDebug() << "ASSET MANAGER: Requesting assets for --> " << project_.user_name() << "/" << project_.project_name();
     connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_assets_received, Qt::QueuedConnection);
-    QNetworkRequest request(QUrl("https://api.github.com/repos/" + github_username_ + "/" + github_project_ + "/releases"));
-    request.setRawHeader("Authorization", QString("token " + github_token_).toStdString().c_str());
+    QNetworkRequest request(QUrl("https://api.github.com/repos/" + project_.user_name() + "/" + project_.project_name() + "/releases"));
+    request.setRawHeader("Authorization", QString("token " + project_.access_token()).toStdString().c_str());
 
     network_.get(request);
 }
 
 void GitHubAssetManager::check_for_updates()
 {
-    qDebug() << "ASSET MANAGER: Checking for updates to --> " << github_username_ << "/" << github_project_;
+    qDebug() << "ASSET MANAGER: Checking for updates to --> " << project_.user_name() << "/" << project_.project_name();
     connect(&network_, &QNetworkAccessManager::finished, this, &GitHubAssetManager::on_latest_received, Qt::QueuedConnection);
-    QNetworkRequest request(QUrl("https://api.github.com/repos/" + github_username_ + "/" + github_project_ + "/releases/latest"));
-    request.setRawHeader("Authorization", QString("token " + github_token_).toStdString().c_str());
+    QNetworkRequest request(QUrl("https://api.github.com/repos/" + project_.user_name() + "/" + project_.project_name() + "/releases/latest"));
+    request.setRawHeader("Authorization", QString("token " + project_.access_token()).toStdString().c_str());
 
     network_.get(request);
 }
 
 void GitHubAssetManager::on_assets_received(QNetworkReply *reply)
 {
-    QStringList list;
+    QList<ProjectTag> list;
     request_map_.clear();
 
     if (reply->error() == QNetworkReply::NoError)
     {
         QString reply_string = (QString) reply->readAll();
-
-        //parse json
         QJsonDocument jsonResponse = QJsonDocument::fromJson(reply_string.toUtf8());
+        QJsonArray array;
 
         if (jsonResponse.isArray())
+            array = jsonResponse.array();
+
+        for (auto itr = array.begin(); itr != array.end(); itr++)
         {
-            auto array = jsonResponse.array();
+            auto item = itr->toObject();
+            ProjectTag *current_tag = nullptr;
+            QList<Dependency> dependency_list;
 
-            for (auto itr = array.begin(); itr != array.end(); itr++)
+            auto assets = item["assets"].toArray();
+            for (auto it = assets.begin(); it != assets.end(); it++)
             {
-                auto item = itr->toObject();
+                auto asset = it->toObject();
+                for(auto dependency : project_.project_dependencies())
+                    if (asset["name"].toString().compare(dependency.package_name(), Qt::CaseInsensitive) == 0)
+                        dependency_list << Dependency(dependency.package_name(), asset["url"].toString(), dependency.information_filename(), dependency.is_required());
 
-                auto assets = item["assets"].toArray();
-                for (auto it = assets.begin(); it != assets.end(); it++)
-                {
-                    auto asset = it->toObject();
-                    if (asset["name"] == (github_required_asset_name_ + ".zip"))
-                    {
-                        qDebug() << "ASSET MANAGER: found " << item["tag_name"];
-                        request_map_.insert(item["tag_name"].toString(), asset["url"].toString());
-                        list << item["tag_name"].toString();
-                    }
-                }
+                if (asset["name"] == (project_.asset_name() + ".zip"))
+                    current_tag = new ProjectTag(item["tag_name"].toString(), asset["url"].toString());
+            }
+
+            if (current_tag)
+            {
+                qDebug() << "ASSET MANAGER: found " << item["tag_name"];
+                current_tag->add_dependency(dependency_list);
+                list << *current_tag;
+                request_map_.insert(item["tag_name"].toString(), current_tag);
             }
         }
 
         delete reply;
 
         qDebug() << "ASSET MANAGER: emitting found assets.";
-        emit provide_asset_ids(list);
+        if (!list.isEmpty())
+            emit provide_asset_ids(list);
     }
     else
     {
@@ -119,10 +126,10 @@ void GitHubAssetManager::on_latest_received(QNetworkReply *reply)
             {
                 qDebug() << "ASSET MANAGER: found " << item["tag_name"];
                 auto asset = it->toObject();
-                if (asset["name"] == (github_required_asset_name_ + ".zip"))
+                if (asset["name"] == (project_.asset_name() + ".zip"))
                 {
                     qDebug() << "ASSET MANAGER: found " << item["tag_name"];
-                    request_map_.insert(item["tag_name"].toString(), asset["url"].toString());
+                    request_map_.insert(item["tag_name"].toString(), new ProjectTag(item["tag_name"].toString(), asset["url"].toString()));
                     tag_name = item["tag_name"].toString();
                 }
             }
@@ -136,6 +143,8 @@ void GitHubAssetManager::on_latest_received(QNetworkReply *reply)
         }
         else
         {
+            if (is_tag_installed(tag_name)) return;
+
             qDebug() << "ASSET MANAGER: providing tag name for latest.";
             emit provide_latest_id(tag_name);
         }
@@ -151,7 +160,10 @@ QFuture<QString> GitHubAssetManager::download_asset(QString asset_id, QString ur
 {
     qDebug() << "download initiated for Tag: " << asset_id << "at REQUEST URL: " << url;
 
-    active_download_ = new Download(install_directory_, github_required_asset_name_, asset_id, url, github_token_, dynamic_cast<QWidget*>(this->parent()));
+    QString file_name = project_.asset_name() + asset_id + ".zip";
+    QString save_to = install_directory_ + ((install_directory_.endsWith("/")) ? "" : "/") + file_name;
+
+    active_download_ = new Download(save_to, asset_id, url, project_.access_token(), dynamic_cast<QWidget*>(this->parent()));
 
     QObject::connect(active_download_, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
 
@@ -169,7 +181,7 @@ void GitHubAssetManager::download_cleanup()
 
 QFuture<QString> GitHubAssetManager::unzip_asset(QString tag)
 {
-    active_archive_ = new ZipPackage(install_directory_, github_required_asset_name_, tag, ".zip");
+    active_archive_ = new ZipPackage(install_directory_, project_.asset_name(), tag, ".zip");
 
     return active_archive_->extract();
 }
@@ -186,10 +198,10 @@ void GitHubAssetManager::unzip_cleanup(int result_index)
 
 void GitHubAssetManager::use_asset(QString directory_name)
 {
-    auto command = QString(directory_name + "/" + executable_name_);
+    auto command = QString(directory_name + "/" + project_.asset_name() + ".app");
     qDebug() << "Use: " << command;
 
-    auto link_name = QString(install_directory_ + asset_name_);
+    auto link_name = QString(install_directory_ + project_.asset_name());
     if (!link_name.isEmpty())
     {
         QFile file(link_name);
@@ -197,11 +209,52 @@ void GitHubAssetManager::use_asset(QString directory_name)
     }
     symlink(command.toStdString().c_str(), link_name.toStdString().c_str());
 
-    auto desktop_link_name = QString("/Users/" + QString(std::getenv("USER")) + "/Desktop/" + asset_name_);
+    auto desktop_link_name = QString("/Users/" + QString(std::getenv("USER")) + "/Desktop/" + project_.asset_name());
     if (!desktop_link_name.isEmpty())
     {
         QFile file(desktop_link_name);
         file.remove();
     }
     symlink(command.toStdString().c_str(), desktop_link_name.toStdString().c_str());
+}
+
+void GitHubAssetManager::begin_install_dependencies(QString tag)
+{
+    qDebug() << "GitHub Asset Manager: installing dependencies. ";
+    QString file_name = project_.asset_name() + tag;
+    QString save_directory = install_directory_ + ((install_directory_.endsWith("/")) ? "" : "/") + file_name + "/" + "dependencies/";
+
+    if (!QDir(save_directory).exists())
+        QDir().mkdir(save_directory);
+
+    for(auto dependency : request_map_[tag]->dependency_list())
+    {
+        qDebug() << "GitHub Asset Manager: Download created for " << dependency.name() << " : at REQUEST URL: " << dependency.url();
+        dependency_downloads_ << new Download(save_directory  + dependency.name(), tag, dependency.url(), project_.access_token(), dynamic_cast<QWidget*>(this->parent()));
+    }
+
+    emit dependency_install_ready();
+}
+
+void GitHubAssetManager::install_current_dependency()
+{
+    if (active_download_)
+    {
+        delete active_download_;
+        active_download_ = nullptr;
+    }
+
+    active_download_ = (!dependency_downloads_.isEmpty()) ? dependency_downloads_.takeFirst() : nullptr;
+
+    // if the active download is null, the process is done.
+    if (!active_download_)
+    {
+        emit dependencies_installed();
+        return;
+    }
+
+    QObject::connect(active_download_, &Download::finished, this, &GitHubAssetManager::install_current_dependency);
+    QObject::connect(active_download_, &Download::make_progress, progress_dialog_, &progressdialog::add_progress);
+
+    active_download_->run();
 }

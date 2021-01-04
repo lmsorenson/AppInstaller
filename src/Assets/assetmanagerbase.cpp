@@ -1,6 +1,7 @@
 #include "assetmanagerbase.h"
 
-#include <src/UserInterface/mainwindow.h>
+#include <UserInterface/mainwindow.h>
+#include <Assets/Models/tag.h>
 #include <QFile>
 #include <QDir>
 
@@ -10,9 +11,13 @@ AssetManagerBase::AssetManagerBase(QString install_directory, MainWindow *parent
 , progress_dialog_(new progressdialog(parent))
 , always_use_latest_(always_use_latest)
 {
-    connect(&install_watcher_, &QFutureWatcher<QString>::finished, this, &AssetManagerBase::download_cleanup);
-    connect(&install_watcher_, &QFutureWatcher<QString>::resultReadyAt, this, &AssetManagerBase::on_unzip_asset);
-    connect(&unzip_watcher_, &QFutureWatcher<QString>::resultReadyAt, this, &AssetManagerBase::unzip_cleanup);
+    connect(&asset_install_watcher_, &QFutureWatcher<QString>::finished, this, &AssetManagerBase::download_cleanup);
+    connect(&asset_install_watcher_, &QFutureWatcher<QString>::resultReadyAt, this, &AssetManagerBase::on_unzip_asset);
+    connect(&asset_unzip_watcher_, &QFutureWatcher<QString>::resultReadyAt, this, &AssetManagerBase::unzip_cleanup);
+    connect(this, &AssetManagerBase::asset_installed, this, &AssetManagerBase::begin_install_dependencies);
+    connect(this, &AssetManagerBase::dependency_install_ready, this, &AssetManagerBase::install_current_dependency);
+    connect(this, &AssetManagerBase::dependencies_installed, this, &AssetManagerBase::finish_install);
+    connect(this, &AssetManagerBase::install_finished, this, &AssetManagerBase::finish_install);
 
     if (progress_dialog_)
     {
@@ -27,6 +32,11 @@ AssetManagerBase::~AssetManagerBase()
         delete progress_dialog_;
         progress_dialog_ = nullptr;
     }
+
+    for(auto request : request_map_)
+        delete request;
+
+    request_map_.clear();
 }
 
 void AssetManagerBase::on_install_asset(QString asset_id)
@@ -40,26 +50,26 @@ void AssetManagerBase::on_install_asset(QString asset_id)
         QDir().mkdir(install_directory_);
     }
 
-    auto install_task = this->download_asset(asset_id, request_map_[asset_id]);
+    auto install_task = this->download_asset(asset_id, request_map_[asset_id]->url());
 
-    install_watcher_.setFuture(install_task);
+    asset_install_watcher_.setFuture(install_task);
 }
 
 void AssetManagerBase::on_unzip_asset(int result_index)
 {
-    QString tag = install_watcher_.resultAt(result_index);
+    QString tag = asset_install_watcher_.resultAt(result_index);
 
     if (!tag.isEmpty())
     {
         auto unzip_task = this->unzip_asset(tag);
 
-        unzip_watcher_.setFuture(unzip_task);
+        asset_unzip_watcher_.setFuture(unzip_task);
     }
 }
 
 void AssetManagerBase::unzip_cleanup(int result_index)
 {
-    QString tag = unzip_watcher_.resultAt(result_index);
+    QString tag = asset_unzip_watcher_.resultAt(result_index);
     QString filename = install_directory_ + generate_installation_name(tag) + ".zip";
     qDebug() << "Attempting to delete archive: " <<  filename;
 
@@ -69,17 +79,10 @@ void AssetManagerBase::unzip_cleanup(int result_index)
         file.remove();
     }
 
-    auto widget = dynamic_cast<QWidget*>(parent());
-    if (widget != nullptr)
-    {
-        widget->setDisabled(false);
-    }
-
-    emit close_dialog();
-    emit on_install_validated(true);
-
     if (always_use_latest_)
         this->on_use_asset(tag);
+
+    emit asset_installed(tag);
 }
 
 void AssetManagerBase::on_use_asset(QString tag)
@@ -89,11 +92,29 @@ void AssetManagerBase::on_use_asset(QString tag)
 
 void AssetManagerBase::check_for_install(QString tag)
 {
-    QDir dir(install_directory_ + generate_installation_name(tag));
-
-    if (dir.exists() && !dir.isEmpty())
+    if (this->is_tag_installed(tag))
         emit on_install_validated(true);
 
     else
         emit on_install_validated(false);
+}
+
+bool AssetManagerBase::is_tag_installed(QString tag)
+{
+    QDir dir(install_directory_ + generate_installation_name(tag));
+
+    return (dir.exists() && !dir.isEmpty());
+}
+
+void AssetManagerBase::finish_install()
+{
+    qDebug() << "install complete. ";
+    auto widget = dynamic_cast<QWidget*>(parent());
+    if (widget != nullptr)
+    {
+        widget->setDisabled(false);
+    }
+
+    emit close_dialog();
+    emit on_install_validated(true);
 }
