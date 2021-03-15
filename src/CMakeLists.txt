@@ -25,6 +25,8 @@ file(GLOB PROJECT_SOURCE_FILES
         Assets/assetmanagerbase.h
         Assets/github/githubassetmanager.cpp
         Assets/github/githubassetmanager.h
+        Assets/github/GitHubProject.cpp
+        Assets/github/GitHubProject.h
         Assets/download.h
         Assets/download.cpp
         Assets/Models/tag.cpp

@@ -38,6 +38,16 @@ int main(int argc, char *argv[])
         self_update_manager->check_for_updates();
     }
 
+    project.validate([&](QString parameter)
+    {
+        w.prompt_for_parameter(parameter);
+    });
+
+    self.validate([&](QString parameter)
+    {
+        w.prompt_for_parameter(parameter);
+    });
+
     auto result = a.exec();
 
     return result;

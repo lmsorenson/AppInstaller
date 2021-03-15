@@ -1,4 +1,6 @@
 #pragma once
+#include <QString>
+#include <QList>
 
 class GitHubProjectDependency
 {
@@ -29,6 +31,7 @@ public:
     ~GitHubProject() = default;
 
     void add_dependency(GitHubProjectDependency dep) { project_dependencies_ << dep; }
+    void validate(std::function<void(QString parameter_name)> callback);
 
     QString user_name() { return user_name_; };
     QString project_name() { return project_name_; };

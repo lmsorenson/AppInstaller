@@ -41,10 +41,12 @@ AssetManagerBase::~AssetManagerBase()
 
 void AssetManagerBase::on_install_asset(QString asset_id)
 {
+    // initialize the download status window.
     progress_dialog_->set_title(asset_id);
     progress_dialog_->show();
     progress_dialog_->setDisabled(false);
 
+    // check if the directory exists.
     if (!QDir(install_directory_).exists())
     {
         QDir().mkdir(install_directory_);

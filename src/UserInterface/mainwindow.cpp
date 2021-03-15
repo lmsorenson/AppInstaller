@@ -51,6 +51,11 @@ const PackageInterface * const MainWindow::get_self_interface()
     return self_;
 }
 
+void MainWindow::prompt_for_parameter(QString parameter_name)
+{
+    qDebug() << "Window: Parameter was invalid: " << parameter_name;
+}
+
 void MainWindow::on_selected_install_exists(bool install_exists)
 {
     if (install_exists)

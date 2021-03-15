@@ -21,6 +21,8 @@ public:
     const PackageInterface * const get_interface();
     const PackageInterface * const get_self_interface();
 
+    void prompt_for_parameter(QString parameter_name);
+
 public slots:
     void on_selected_install_exists(bool install_exists);
 
