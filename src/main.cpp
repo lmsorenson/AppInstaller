@@ -2,7 +2,7 @@
 #include <QApplication>
 #include <QObject>
 #include <Assets/github/githubassetmanager.h>
-#include <Configuration.h>
+#include <ConfigurationRepository/Configuration.h>
 
 GitHubAssetManager *self_update_manager = nullptr, *project_manager = nullptr;
 

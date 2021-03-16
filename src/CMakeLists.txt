@@ -20,7 +20,7 @@ find_package(CURL REQUIRED)
 
 file(GLOB PROJECT_SOURCE_FILES
         main.cpp
-        Configuration.h
+        ConfigurationRepository/Configuration.h
         Assets/assetmanagerbase.cpp
         Assets/assetmanagerbase.h
         Assets/github/githubassetmanager.cpp
